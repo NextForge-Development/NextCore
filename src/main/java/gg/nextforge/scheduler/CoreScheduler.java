@@ -1,9 +1,11 @@
 package gg.nextforge.scheduler;
 
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,7 +23,8 @@ public class CoreScheduler {
 
     private static CoreScheduler instance; // Singleton instance of CoreScheduler
     private final Plugin plugin; // Plugin instance for scheduling tasks
-    private final Map<Integer, ScheduledTask> activeTasks = new ConcurrentHashMap<>(); // Active tasks map
+    @Getter
+    private static final Map<Integer, ScheduledTask> activeTasks = new ConcurrentHashMap<>(); // Active tasks map
     private final AtomicInteger taskCounter = new AtomicInteger(0); // Counter for task IDs
 
     /**

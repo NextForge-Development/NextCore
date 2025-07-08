@@ -37,7 +37,7 @@ public class ScheduledTask {
         if (!cancelled && bukkitTask != null) {
             bukkitTask.cancel();
             cancelled = true;
-            activeTasks.remove(id);
+            CoreScheduler.getActiveTasks().remove(id);
         }
     }
 

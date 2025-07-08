@@ -8,6 +8,7 @@ plugins {
 group = 'gg.nextforge'
 version = '1.0-SNAPSHOT'
 
+
 repositories {
     mavenCentral()
 }
@@ -21,6 +22,28 @@ dependencies {
     implementation "org.mozilla:rhino:1.7.14"
     implementation "com.google.code.gson:gson:2.10.1"
     implementation "org.bstats:bstats-bukkit:3.0.2"
+}
+
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+    apply plugin: 'io.papermc.paperweight.userdev'
+    apply plugin: 'com.gradleup.shadow'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        paperweight.paperDevBundle("1.19.1-R0.1-SNAPSHOT")
+
+        compileOnly "org.projectlombok:lombok:1.18.38"
+        annotationProcessor "org.projectlombok:lombok:1.18.38"
+
+        implementation "org.mozilla:rhino:1.7.14"
+        implementation "com.google.code.gson:gson:2.10.1"
+        implementation "org.bstats:bstats-bukkit:3.0.2"
+    }
 }
 
 test {
