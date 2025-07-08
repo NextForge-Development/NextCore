@@ -41,7 +41,7 @@ We welcome contributions to the NextForge Core Plugin! If you would like to cont
 2. Create a new branch for your feature or bug fix.
 3. Make your changes and commit them with a clear message.
 4. Push your changes to your forked repository.
-5. Create a pull request to the `main` branch of the original repository.
+5. Create a pull request to the `dev` branch of the original repository.
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
