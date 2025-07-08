@@ -45,14 +45,27 @@ jobs:
       - name: Build shadowJar
         run: ./gradlew shadowJar
 
-      - name: Extract version
+      # 1) JAR-Pfad bestimmen
+      - name: Find built JAR
+        id: jar
+        run: |
+          JAR_PATH=$(ls build/libs/*.jar | head -n1)
+          echo "jar_path=$JAR_PATH" >> $GITHUB_OUTPUT
+
+      # 2) Version aus plugin.yml im JAR extrahieren
+      - name: Extract version from JAR
         id: vars
         run: |
-          echo "version=$(grep -m1 '^version:' src/main/resources/plugin.yml | sed 's/version:[ ]*//')" >> $GITHUB_OUTPUT
+          VERSION=$(unzip -p "${{ steps.jar.outputs.jar_path }}" plugin.yml \
+                    | grep '^version:' \
+                    | sed 's/version:[ ]*//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+      # 3) Alle Tags holen, um lokal prüfen zu können
       - name: Fetch all tags
         run: git fetch --tags
 
+      # 4) Abbrechen, wenn der Tag schon existiert
       - name: Check if tag exists
         run: |
           TAG=${{ steps.vars.outputs.version }}
@@ -63,12 +76,7 @@ jobs:
             echo "✅ Tag '$TAG' ist neu. Fortfahren..."
           fi
 
-      - name: Find built JAR
-        id: jar
-        run: |
-          JAR_PATH=$(ls build/libs/*.jar | head -n1)
-          echo "jar_path=$JAR_PATH" >> $GITHUB_OUTPUT
-
+      # 5) Release anlegen
       - name: Create Release
         id: create
         uses: actions/create-release@v1
@@ -80,6 +88,7 @@ jobs:
           draft: false
           prerelease: false
 
+      # 6) JAR hochladen
       - name: Upload JAR
         uses: actions/upload-release-asset@v1
         env:
