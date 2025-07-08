@@ -3,7 +3,13 @@ name: Release
 on:
   push:
     branches: [main]
-
+  workflow_dispatch:
+    inputs:
+      firstName:
+        description: "Your first name"
+        type: string
+        default: Brad
+        required: true
 jobs:
   release:
     runs-on: ubuntu-latest
