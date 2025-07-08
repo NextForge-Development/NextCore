@@ -4,18 +4,21 @@ import gg.nextforge.protocol.packet.PacketContainer;
 import gg.nextforge.protocol.packet.PacketType;
 import org.bukkit.plugin.Plugin;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Convenience adapter for packet listeners.
- * <p>
- * This class simplifies the implementation of packet listeners by allowing developers
- * to override only the methods they need. It provides multiple constructors for different
- * configurations and a builder for creating adapters with custom behavior.
+ * Convenience adapter for packet listeners.<br>
+ * <br>
+ * Developers can extend this class to quickly implement custom packet logic or
+ * annotate methods with {@link PacketHandler} for automatic registration via
+ * {@link AnnotationProcessor}. A small builder utility is also provided for
+ * simple lambda based listeners.
  */
 public abstract class PacketAdapter extends PacketListener {
 
@@ -65,17 +68,53 @@ public abstract class PacketAdapter extends PacketListener {
     }
 
     /**
-     * Functional interface for handling packets.
-     * Allows the use of lambda expressions for defining packet behavior.
+     * Annotation used to mark methods as packet handlers that should be
+     * automatically registered by {@link AnnotationProcessor}.<br>
+     * <br>
+     * Example usage:
+     * <pre>{@code
+     * @PacketAdapter.PacketHandler(types = {"PLAY_CLIENT_CHAT"})
+     * public void onChat(Player player, PacketContainer packet) {
+     *     // handle packet
+     * }
+     * }</pre>
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.METHOD)
+    public @interface PacketHandler {
+        /** Listener priority. */
+        ListenerPriority priority() default ListenerPriority.NORMAL;
+
+        /**
+         * Whether to listen for outgoing packets.
+         */
+        boolean sending() default true;
+
+        /**
+         * Whether to listen for incoming packets.
+         */
+        boolean receiving() default true;
+
+        /**
+         * Optional packet types to filter. If empty, all types will be passed.
+         */
+        String[] types() default {};
+
+        /**
+         * Optional JavaScript filter string executed before the handler.
+         */
+        String filter() default "";
+    }
+
+    /**
+     * Functional interface for lambda based packet handlers used by the
+     * {@link Builder}. It mirrors the signature expected by
+     * {@link PacketListener} methods.
      */
     @FunctionalInterface
-    public interface PacketHandler {
+    public interface PacketConsumer {
         /**
-         * Handles a packet.
-         *
-         * @param player The player associated with the packet.
-         * @param packet The packet being handled.
-         * @return true to allow the packet, false to cancel it.
+         * Handle a packet for the given player.
          */
         boolean handle(org.bukkit.entity.Player player, PacketContainer packet);
     }
@@ -88,8 +127,8 @@ public abstract class PacketAdapter extends PacketListener {
         private final Set<PacketType> sendingTypes = new HashSet<>();
         private final Set<PacketType> receivingTypes = new HashSet<>();
         private ListenerPriority priority = ListenerPriority.NORMAL;
-        private PacketHandler sendingHandler = null;
-        private PacketHandler receivingHandler = null;
+        private PacketConsumer sendingHandler = null;
+        private PacketConsumer receivingHandler = null;
 
         /**
          * Constructs a Builder instance.
@@ -139,7 +178,7 @@ public abstract class PacketAdapter extends PacketListener {
          * @param handler The PacketHandler instance.
          * @return The current Builder instance for chaining.
          */
-        public Builder onSending(PacketHandler handler) {
+        public Builder onSending(PacketConsumer handler) {
             this.sendingHandler = handler;
             return this;
         }
@@ -150,7 +189,7 @@ public abstract class PacketAdapter extends PacketListener {
          * @param handler The PacketHandler instance.
          * @return The current Builder instance for chaining.
          */
-        public Builder onReceiving(PacketHandler handler) {
+        public Builder onReceiving(PacketConsumer handler) {
             this.receivingHandler = handler;
             return this;
         }
