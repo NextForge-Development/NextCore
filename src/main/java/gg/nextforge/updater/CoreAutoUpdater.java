@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -122,29 +123,35 @@ public class CoreAutoUpdater {
     /**
      * Downloads the latest release JAR if a newer version is available.
      *
-     * @param downloadIfNew if true, download only when a newer version exists
      * @return the downloaded file, or null if no download occurred
      * @throws IOException if downloading fails
      */
-    public File downloadLatestJar(boolean downloadIfNew) throws IOException {
-        JsonObject release = getLatestRelease();
-        String latest = release.get("tag_name").getAsString();
-        if (downloadIfNew && latest.equalsIgnoreCase(currentVersion)) {
-            LOGGER.info("Already on the latest version: " + latest);
-            return null;
-        }
-
-        JsonArray assets = release.getAsJsonArray("assets");
-        for (JsonElement el : assets) {
-            JsonObject asset = el.getAsJsonObject();
-            String name = asset.get("name").getAsString();
-            if (name.endsWith(".jar")) {
-                String url = asset.get("browser_download_url").getAsString();
-                return downloadFile(url, name);
+    public CompletableFuture<File> downloadLatestJar() throws IOException {
+        return CompletableFuture.supplyAsync(() -> {
+            JsonObject release = null;
+            try {
+                release = getLatestRelease();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        }
-        LOGGER.warning("No JAR asset found in the latest release");
-        return null;
+            String latest = release.get("tag_name").getAsString();
+            if (latest.equalsIgnoreCase(currentVersion)) {
+                LOGGER.info("Already on the latest version: " + latest);
+                return null;
+            }
+
+            JsonArray assets = release.getAsJsonArray("assets");
+            for (JsonElement el : assets) {
+                JsonObject asset = el.getAsJsonObject();
+                String name = asset.get("name").getAsString();
+                if (name.endsWith(".jar")) {
+                    String url = asset.get("browser_download_url").getAsString();
+                    return downloadFile(url, name);
+                }
+            }
+            LOGGER.warning("No JAR asset found in the latest release");
+            return null;
+        });
     }
 
     private File downloadFile(String url, String name) throws IOException {
