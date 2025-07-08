@@ -2,6 +2,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.17"
+    id("com.gradleup.shadow") version "8.3.8"
 }
 
 group = 'gg.nextforge'
@@ -14,8 +15,12 @@ repositories {
 dependencies {
     paperweight.paperDevBundle("1.19.1-R0.1-SNAPSHOT")
 
+    compileOnly "org.projectlombok:lombok:1.18.38"
+    annotationProcessor "org.projectlombok:lombok:1.18.38"
+
     implementation "org.mozilla:rhino:1.7.14"
     implementation "com.google.code.gson:gson:2.10.1"
+    implementation "org.bstats:bstats-bukkit:3.0.2"
 }
 
 test {
@@ -29,6 +34,8 @@ java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(21))
     }
+    withJavadocJar()
+    withSourcesJar()
 }
 
 tasks {
@@ -45,6 +52,12 @@ tasks {
             )
         }
     }
+}
+
+shadowJar {
+    relocate("org.mozilla.javascript", "gg.nextforge.libraries.rhino")
+    relocate("com.google.gson", "gg.nextforge.libraries.gson")
+    relocate("org.bstats", "gg.nextforge.libraries.bstats")
 }
 
 publishing {

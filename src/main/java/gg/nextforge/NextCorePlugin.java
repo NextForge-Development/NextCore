@@ -7,7 +7,7 @@ import java.util.UUID;
 public class NextCorePlugin extends NextForgePlugin {
     @Override
     public int getMetricsId() {
-        return 0; // Replace with actual metrics ID if applicable
+        return 26427; // Replace with actual metrics ID if applicable
     }
 
     @Override

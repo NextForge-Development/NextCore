@@ -7,6 +7,7 @@ import gg.nextforge.protocol.ProtocolManager;
 import gg.nextforge.scheduler.CoreScheduler;
 import gg.nextforge.text.TextManager;
 import lombok.Getter;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -23,6 +24,7 @@ public abstract class NextForgePlugin extends JavaPlugin {
     CommandManager commandManager;
     TextManager textManager;
     ProtocolManager protocolManager;
+    Metrics metrics;
 
     public abstract int getMetricsId();
 
@@ -53,6 +55,8 @@ public abstract class NextForgePlugin extends JavaPlugin {
             getSLF4JLogger().info("[NextForge] {} v{} is running as the core plugin.", getName(), getPluginVersion());
         }
         getSLF4JLogger().info("[NextForge] Initializing {} v{}...", getName(), getPluginVersion());
+
+        this.metrics = new Metrics(this, getMetricsId());
 
         this.configManager = new ConfigManager(this);
         this.scheduler = new CoreScheduler(this);
