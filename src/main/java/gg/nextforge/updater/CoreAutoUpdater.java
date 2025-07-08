@@ -8,7 +8,6 @@ import com.google.gson.JsonObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,8 +26,8 @@ import java.util.regex.Pattern;
 public class CoreAutoUpdater {
 
     private static final Logger LOGGER = Logger.getLogger(CoreAutoUpdater.class.getName());
-    private static final String OWNER = "nextforge";
-    private static final String REPO = "protocol";
+    private static final String OWNER = "NextForge-Development";
+    private static final String REPO = "NextCore";
     private static final String RELEASE_API = "https://api.github.com/repos/%s/%s/releases/latest";
 
     private final Gson gson = new Gson();
@@ -36,13 +35,13 @@ public class CoreAutoUpdater {
     private final String currentVersion;
 
     /**
-     * Creates an updater using the version from build.gradle.
+     * Creates an updater using the version specified in {@code plugin.yml}
+     * shipped within this JAR.
      *
-     * @param projectDir  the project directory containing build.gradle
      * @param downloadDir the directory to download new JARs to
      */
-    public CoreAutoUpdater(File projectDir, File downloadDir) {
-        this.currentVersion = readVersionFromBuild(new File(projectDir, "build.gradle"));
+    public CoreAutoUpdater(File downloadDir) {
+        this.currentVersion = readVersionFromPlugin();
         this.downloadDir = downloadDir;
     }
 
@@ -57,18 +56,24 @@ public class CoreAutoUpdater {
         this.downloadDir = downloadDir;
     }
 
-    private String readVersionFromBuild(File buildFile) {
-        Pattern p = Pattern.compile("version\\s*=\\s*['\"]([^'\"]+)['\"]");
-        try (BufferedReader reader = new BufferedReader(new FileReader(buildFile))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                Matcher m = p.matcher(line.trim());
-                if (m.find()) {
-                    return m.group(1);
+    private String readVersionFromPlugin() {
+        Pattern p = Pattern.compile("^version:\\s*(.+)$");
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream("plugin.yml")) {
+            if (in == null) {
+                LOGGER.warning("plugin.yml not found in classpath");
+                return "";
+            }
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    Matcher m = p.matcher(line.trim());
+                    if (m.find()) {
+                        return m.group(1).trim();
+                    }
                 }
             }
         } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "Failed to read version from build file", e);
+            LOGGER.log(Level.WARNING, "Failed to read plugin.yml", e);
         }
         return "";
     }
