@@ -1,5 +1,6 @@
 package gg.nextforge;
 
+import gg.nextforge.console.ConsoleHeader;
 import gg.nextforge.plugin.NextForgePlugin;
 
 import java.util.UUID;
@@ -19,7 +20,10 @@ public class NextCorePlugin extends NextForgePlugin {
     public void enable(boolean isReload) {
         if (isReload) {
             getSLF4JLogger().info("[NextForge] Our plugins are not designed to be reloaded. Please restart the server or use /nextforge reload <pluginName> to reload it's configuration.");
+            return;
         }
+
+        ConsoleHeader.send(this);
     }
 
     @Override
