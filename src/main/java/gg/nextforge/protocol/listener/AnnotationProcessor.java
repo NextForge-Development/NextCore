@@ -11,11 +11,23 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 /**
- * Processes <code>@PacketHandler</code> annotations to automatically register methods as packet listeners.
- *
- * This class scans objects for methods annotated with <code>@PacketHandler</code> and registers them
- * as packet listeners using reflection. It supports validation of method signatures,
- * parsing packet types, and applying JavaScript filters for additional control.
+ * Processes {@link PacketAdapter.PacketHandler} annotations to automatically
+ * register methods as packet listeners.<br>
+ * <br>
+ * Example usage:
+ * <pre>{@code
+ * public class MyListener {
+ *     @PacketAdapter.PacketHandler(types = {"PLAY_SERVER_CHAT"}, priority = ListenerPriority.HIGH)
+ *     public void onChat(Player player, PacketContainer packet) {
+ *         // handle packet
+ *     }
+ * }
+ * }</pre>
+ * <br>
+ * This processor scans objects for methods annotated with
+ * {@code @PacketHandler} and registers them using reflection. It validates
+ * method signatures, parses packet types and applies optional JavaScript
+ * filters defined in the annotation.
  *
  * @see gg.nextforge.protocol.listener.PacketAdapter.PacketHandler
  */
@@ -94,7 +106,12 @@ public class AnnotationProcessor {
     public void unregisterHandlers(Object handler) {
         List<PacketListener> listeners = registeredListeners.remove(handler);
         if (listeners != null) {
-            listeners.forEach(protocol::unregisterListener);
+            for (PacketListener listener : listeners) {
+                protocol.unregisterListener(listener);
+                if (listener instanceof MethodPacketListener mpl) {
+                    mpl.close();
+                }
+            }
         }
     }
 
@@ -107,6 +124,7 @@ public class AnnotationProcessor {
         private final boolean sending; // Whether the listener handles sending packets
         private final boolean receiving; // Whether the listener handles receiving packets
         private final String filter; // Optional JavaScript filter for packet handling
+        private final String filterName; // Compiled filter identifier
 
         /**
          * Constructs a MethodPacketListener instance.
@@ -127,6 +145,14 @@ public class AnnotationProcessor {
             this.sending = annotation.sending();
             this.receiving = annotation.receiving();
             this.filter = annotation.filter();
+
+            if (filter != null && !filter.isEmpty()) {
+                this.filterName = "handler_" + method.getName() + "_" + System.nanoTime();
+                var engine = NextForgePlugin.getInstance().getProtocolManager().getScriptEngine();
+                engine.compileFilter(filterName, filter);
+            } else {
+                this.filterName = null;
+            }
 
             method.setAccessible(true); // Allows access to private methods
         }
@@ -169,16 +195,11 @@ public class AnnotationProcessor {
          */
         private boolean invokeMethod(Player player, PacketContainer packet) {
             try {
-                // Apply JavaScript filter if specified
-                if (filter != null && !filter.isEmpty()) {
-                    var scriptEngine = NextForgePlugin.getInstance().getProtocolManager().getScriptEngine();
-                    String tempName = "temp_" + System.nanoTime();
-                    scriptEngine.compileFilter(tempName, filter);
-                    boolean filterResult = scriptEngine.executeFilter(tempName, player, packet);
-                    scriptEngine.removeFilter(tempName);
-
-                    if (!filterResult) {
-                        return false; // Filter rejected the packet
+                // Apply precompiled JavaScript filter if specified
+                if (filterName != null) {
+                    var engine = NextForgePlugin.getInstance().getProtocolManager().getScriptEngine();
+                    if (!engine.executeFilter(filterName, player, packet)) {
+                        return false;
                     }
                 }
 
@@ -199,5 +220,14 @@ public class AnnotationProcessor {
                 return true;
             }
         }
-    }
-}
+
+        /**
+         * Removes any compiled script resources.
+         */
+        public void close() {
+            if (filterName != null) {
+                var engine = NextForgePlugin.getInstance().getProtocolManager().getScriptEngine();
+                engine.removeFilter(filterName);
+            }
+        }
+    }}
