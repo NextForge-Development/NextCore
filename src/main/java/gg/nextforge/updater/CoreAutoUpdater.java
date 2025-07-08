@@ -146,7 +146,11 @@ public class CoreAutoUpdater {
                 String name = asset.get("name").getAsString();
                 if (name.endsWith(".jar")) {
                     String url = asset.get("browser_download_url").getAsString();
-                    return downloadFile(url, name);
+                    try {
+                        return downloadFile(url, name);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
             LOGGER.warning("No JAR asset found in the latest release");
