@@ -85,6 +85,7 @@ tasks {
 }
 
 shadowJar {
+    dependsOn(processResources)
     relocate("org.mozilla.javascript", "gg.nextforge.libraries.rhino")
     relocate("com.google.gson", "gg.nextforge.libraries.gson")
     relocate("org.bstats", "gg.nextforge.libraries.bstats")
