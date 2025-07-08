@@ -50,6 +50,19 @@ jobs:
         run: |
           echo "version=$(grep -m1 '^version:' src/main/resources/plugin.yml | sed 's/version:[ ]*//')" >> $GITHUB_OUTPUT
 
+      - name: Fetch all tags
+        run: git fetch --tags
+
+      - name: Check if tag exists
+        run: |
+          TAG=${{ steps.vars.outputs.version }}
+          if git ls-remote --tags origin "refs/tags/$TAG" | grep -q "$TAG"; then
+            echo "❌ Tag '$TAG' existiert bereits. Breche ab."
+            exit 1
+          else
+            echo "✅ Tag '$TAG' ist neu. Fortfahren..."
+          fi
+
       - name: Find built JAR
         id: jar
         run: |
