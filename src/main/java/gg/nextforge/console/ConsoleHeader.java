@@ -1,0 +1,23 @@
+package gg.nextforge.console;
+
+import gg.nextforge.plugin.NextForgePlugin;
+
+public class ConsoleHeader {
+
+    private static String HEADER_LINE_1 = "███╗   ██╗███████╗██╗  ██╗████████╗███████╗ ██████╗ ██████╗  ██████╗ ███████╗";
+    private static String HEADER_LINE_2 = "████╗  ██║██╔════╝╚██╗██╔╝╚══██╔══╝██╔════╝██╔═══██╗██╔══██╗██╔════╝ ██╔════╝";
+    private static String HEADER_LINE_3 = "██╔██╗ ██║█████╗   ╚███╔╝    ██║   █████╗  ██║   ██║██████╔╝██║  ███╗█████╗  ";
+    private static String HEADER_LINE_4 = "██║╚██╗██║██╔══╝   ██╔██╗    ██║   ██╔══╝  ██║   ██║██╔══██╗██║   ██║██╔══╝  ";
+    private static String HEADER_LINE_5 = "██║ ╚████║███████╗██╔╝ ██╗   ██║   ██║     ╚██████╔╝██║  ██║╚██████╔╝███████╗";
+    private static String HEADER_LINE_6 = "╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝      ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝";
+
+    public static void send(NextForgePlugin nextForgePlugin) {
+        nextForgePlugin.getSLF4JLogger().info(" {}", HEADER_LINE_1);
+        nextForgePlugin.getSLF4JLogger().info(" {}", HEADER_LINE_2);
+        nextForgePlugin.getSLF4JLogger().info(" {}", HEADER_LINE_3);
+        nextForgePlugin.getSLF4JLogger().info(" {}", HEADER_LINE_4);
+        nextForgePlugin.getSLF4JLogger().info(" {}", HEADER_LINE_5);
+        nextForgePlugin.getSLF4JLogger().info(" {}", HEADER_LINE_6);
+    }
+
+}

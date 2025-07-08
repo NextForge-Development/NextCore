@@ -1,0 +1,69 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.17"
+}
+
+group = 'gg.nextforge'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    paperweight.paperDevBundle("1.19.1-R0.1-SNAPSHOT")
+
+    implementation "org.mozilla:rhino:1.7.14"
+    implementation "com.google.code.gson:gson:2.10.1"
+}
+
+test {
+    useJUnitPlatform()
+}
+
+java {
+    // Use Java 21
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+tasks {
+    compileJava {
+        options.encoding = "UTF-8"
+    }
+
+    processResources {
+        filesMatching("plugin.yml") {
+            expand(
+                version: project.version,
+                group: project.group,
+                name: project.name
+            )
+        }
+    }
+}
+
+publishing {
+
+    repositories {
+        mavenLocal()
+    }
+
+    publications {
+        create("mavenJava", MavenPublication) {
+            from components.java
+            groupId = project.group
+            artifactId = 'nextforge'
+            version = project.version
+
+            pom {
+                name.set('NextForge-Core')
+                description.set('A modern, modular, and extensible Minecraft server core software for NextForge plugins.')
+            }
+        }
+    }
+}

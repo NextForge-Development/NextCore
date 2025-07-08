@@ -1,0 +1,9 @@
+name: NextForge-Core
+main: gg.nextforge.NextCorePlugin
+author: NextForge Team
+version: 1.0.0
+api-version: 1.19
+depend:
+  - PlaceholderAPI
+softdepend:
+  - LuckPerms
