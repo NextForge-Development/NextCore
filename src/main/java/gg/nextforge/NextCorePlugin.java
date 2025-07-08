@@ -61,7 +61,7 @@ public class NextCorePlugin extends NextForgePlugin {
                     if (configFile.getBoolean("updater.auto_update", true)) {
                         if (!updater.isLatestVersion()) {
                             getSLF4JLogger().info("[NextForge] Downloading the latest version of NextCore...");
-                            updater.downloadLatestJar().thenAccept((file -> {
+                            updater.downloadLatestJar(configFile.getString("updater.update_branch", "master").equalsIgnoreCase("dev")).thenAccept((file -> {
                                 getSLF4JLogger().info("[NextForge] Download complete. Please restart the server to apply the update.");
                             }));
                         } else {

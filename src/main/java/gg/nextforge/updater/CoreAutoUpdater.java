@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 
 /**
  * Provides utilities for checking for updates and downloading the latest JAR
- * from GitHub releases.
+ * from GitHub releases. Supports „Dev releases“ (Prereleases mit '-SNAPSHOT').
  */
 public class CoreAutoUpdater {
 
@@ -30,6 +30,7 @@ public class CoreAutoUpdater {
     private static final String OWNER = "NextForge-Development";
     private static final String REPO = "NextCore";
     private static final String RELEASE_API = "https://api.github.com/repos/%s/%s/releases/latest";
+    private static final String LIST_RELEASES_API = "https://api.github.com/repos/%s/%s/releases";
 
     private final Gson gson = new Gson();
     private final File downloadDir;
@@ -90,6 +91,9 @@ public class CoreAutoUpdater {
         return conn;
     }
 
+    /**
+     * Holt das neueste „stable“ Release (non-prerelease).
+     */
     private JsonObject getLatestRelease() throws IOException {
         HttpURLConnection conn = openConnection(String.format(RELEASE_API, OWNER, REPO));
         try (InputStream in = conn.getInputStream();
@@ -99,13 +103,41 @@ public class CoreAutoUpdater {
     }
 
     /**
+     * Holt das neueste „Dev“-Release, also den ersten Prerelease mit '-SNAPSHOT'.
+     * Fällt zurück auf das neueste stabile Release, falls kein Dev-Release gefunden wird.
+     */
+    private JsonObject getLatestDevRelease() throws IOException {
+        HttpURLConnection conn = openConnection(String.format(LIST_RELEASES_API, OWNER, REPO));
+        try (InputStream in = conn.getInputStream();
+             InputStreamReader reader = new InputStreamReader(in)) {
+            JsonArray releases = gson.fromJson(reader, JsonArray.class);
+            for (JsonElement el : releases) {
+                JsonObject rel = el.getAsJsonObject();
+                boolean prerelease = rel.get("prerelease").getAsBoolean();
+                String tagName = rel.get("tag_name").getAsString();
+                if (prerelease && tagName.endsWith("-SNAPSHOT")) {
+                    return rel;
+                }
+            }
+        }
+        // Fallback
+        return getLatestRelease();
+    }
+
+    /**
      * Fetches the tag name of the latest release on GitHub.
+     * Bei '-SNAPSHOT' im currentVersion: Dev-Release, sonst Stable.
      *
      * @return the latest release tag
      * @throws IOException if the request fails
      */
     public String fetchLatestVersion() throws IOException {
-        JsonObject release = getLatestRelease();
+        JsonObject release;
+        if (currentVersion != null && currentVersion.endsWith("-SNAPSHOT")) {
+            release = getLatestDevRelease();
+        } else {
+            release = getLatestRelease();
+        }
         return release.get("tag_name").getAsString();
     }
 
@@ -122,18 +154,24 @@ public class CoreAutoUpdater {
 
     /**
      * Downloads the latest release JAR if a newer version is available.
+     * Bei '-SNAPSHOT' im currentVersion: Dev-Release, sonst Stable.
      *
      * @return the downloaded file, or null if no download occurred
      * @throws IOException if downloading fails
      */
-    public CompletableFuture<File> downloadLatestJar() throws IOException {
+    public CompletableFuture<File> downloadLatestJar(boolean dev) throws IOException {
         return CompletableFuture.supplyAsync(() -> {
-            JsonObject release = null;
+            JsonObject release;
             try {
-                release = getLatestRelease();
+                if (currentVersion != null && currentVersion.endsWith("-SNAPSHOT") && dev) {
+                    release = getLatestDevRelease();
+                } else {
+                    release = getLatestRelease();
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+
             String latest = release.get("tag_name").getAsString();
             if (latest.equalsIgnoreCase(currentVersion)) {
                 LOGGER.info("Already on the latest version: " + latest);
