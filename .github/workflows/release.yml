@@ -1,8 +1,11 @@
 name: Release
 
+permissions:
+  contents: write # Allow the workflow to write to the repository contents
+
 on:
   push:
-    branches: [master, main]
+    branches: [ master, main ]
   workflow_dispatch:
     inputs:
       firstName:
@@ -38,6 +41,7 @@ jobs:
         id: vars
         run: |
           echo "version=$(grep -m1 '^version:' src/main/resources/plugin.yml | sed 's/version:[ ]*//')" >> $GITHUB_OUTPUT
+
       - name: Create Release
         id: create
         uses: actions/create-release@v1
@@ -48,6 +52,7 @@ jobs:
           release_name: ${{ steps.vars.outputs.version }}
           draft: false
           prerelease: false
+
       - name: Upload JAR
         uses: actions/upload-release-asset@v1
         env:
