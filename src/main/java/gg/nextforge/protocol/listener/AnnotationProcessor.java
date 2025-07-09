@@ -1,6 +1,7 @@
 package gg.nextforge.protocol.listener;
 
 import gg.nextforge.plugin.NextForgePlugin;
+import gg.nextforge.protocol.ScriptEngine;
 import gg.nextforge.protocol.packet.PacketContainer;
 import gg.nextforge.protocol.packet.PacketType;
 import gg.nextforge.protocol.ProtocolManager;
@@ -149,7 +150,11 @@ public class AnnotationProcessor {
             if (filter != null && !filter.isEmpty()) {
                 this.filterName = "handler_" + method.getName() + "_" + System.nanoTime();
                 var engine = NextForgePlugin.getInstance().getProtocolManager().getScriptEngine();
-                engine.compileFilter(filterName, filter);
+                try {
+                    engine.compileFilter(filterName, filter);
+                } catch (ScriptEngine.ScriptException e) {
+                    throw new RuntimeException(e);
+                }
             } else {
                 this.filterName = null;
             }

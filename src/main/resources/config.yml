@@ -1,0 +1,5 @@
+updater:
+  auto_update: true # Enable automatic updates
+  check_interval: 7200000 # Check for updates every 2 hours (in milliseconds)
+  update_branch: 'master' # Branch to check for updates | Available branches: master, dev
+  disable_update_message: false # Disable the update message in the console

@@ -1,0 +1,24 @@
+general:
+  prefix: "<dark_gray>[<gradient:aqua:dark_aqua>ɴᴇxᴛᴄᴏʀᴇ<dark_gray>]</gradient></dark_gray>"
+  no-permission: "%prefix% <red>You do not have permission to perform this action.</red>"
+
+commands:
+  nextcore:
+    help:
+      - "<gold>┌─────────────</gold> <yellow>NextCore Help</yellow> <gold>─────────────</gold>"
+      - "<gold>│</gold>"
+      - "<gold>│</gold>  <gray>/nextcore <yellow>reload</yellow><dark_gray> - </dark_gray>Reloads the NextCore configuration"
+      - "<gold>│</gold>  <gray>/nextcore <yellow>version</yellow><dark_gray> - </dark_gray>Displays the NextCore version"
+      - "<gold>│</gold>  <gray>/nextcore <yellow>debug</yellow><dark_gray> - </dark_gray>Toggles debug mode for NextCore"
+      - "<gold>│</gold>  <gray>/nextcore <yellow>update</yellow><dark_gray> - </dark_gray>Checks for updates to NextCore"
+      - "<gold>│</gold>  <gray>/nextcore <yellow>info</yellow><dark_gray> - </dark_gray>Get server information"
+      - "<gold>│</gold>  <gray>/nextcore <yellow>test</yellow><dark_gray> - </dark_gray>Run test commands"
+      - "<gold>│</gold>  <gray>/nextcore <yellow>managers</yellow><dark_gray> - </dark_gray>See the managers doing their job"
+      - "<gold>│</gold>  <gray>/nextcore <yellow>help</yellow><dark_gray> - </dark_gray>Displays this help message"
+      - "<gold>│</gold>"
+      - "<gold>│</gold>  <gray>Made by <gold>%author%</gold> | <gold>Version: %version%</gold></gray>"
+      - "<gold>│</gold>"
+      - "<gold>└─────────────</gold> <yellow>NextCore Help</yellow> <gold>─────────────</gold>"
+    reload:
+      success: "%prefix% <green>Configuration reloaded successfully.</green> <gray>(%time%ms)</gray>"
+      error: "%prefix% <red>Failed to reload configuration: %error%</red>"

@@ -1,19 +1,32 @@
 name: Release
 
+permissions:
+  contents: write # Allow the workflow to write to the repository contents
+
 on:
   push:
-    branches: [main]
+    branches: [ master, main ]
+  workflow_dispatch:
+    inputs:
+      firstName:
+        description: "Your first name"
+        type: string
+        default: Brad
+        required: true
 
 jobs:
   release:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '23'
           distribution: 'temurin'
+
       - name: Cache Gradle
         uses: actions/cache@v3
         with:
@@ -22,14 +35,48 @@ jobs:
             ~/.gradle/wrapper
           key: gradle-${{ runner.os }}-${{ hashFiles('**/gradle-wrapper.properties') }}
           restore-keys: gradle-${{ runner.os }}-
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
       - name: Run tests
         run: ./gradlew test
+
       - name: Build shadowJar
         run: ./gradlew shadowJar
-      - name: Extract version
+
+      # 1) JAR-Pfad bestimmen
+      - name: Find built JAR
+        id: jar
+        run: |
+          JAR_PATH=$(ls build/libs/*.jar | head -n1)
+          echo "jar_path=$JAR_PATH" >> $GITHUB_OUTPUT
+
+      # 2) Version aus plugin.yml im JAR extrahieren
+      - name: Extract version from JAR
         id: vars
         run: |
-          echo "version=$(grep -m1 '^version:' src/main/resources/plugin.yml | sed 's/version:[ ]*//')" >> $GITHUB_OUTPUT
+          VERSION=$(unzip -p "${{ steps.jar.outputs.jar_path }}" plugin.yml \
+                    | grep '^version:' \
+                    | sed 's/version:[ ]*//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      # 3) Alle Tags holen, um lokal prüfen zu können
+      - name: Fetch all tags
+        run: git fetch --tags
+
+      # 4) Abbrechen, wenn der Tag schon existiert
+      - name: Check if tag exists
+        run: |
+          TAG=${{ steps.vars.outputs.version }}
+          if git ls-remote --tags origin "refs/tags/$TAG" | grep -q "$TAG"; then
+            echo "❌ Tag '$TAG' existiert bereits. Breche ab."
+            exit 1
+          else
+            echo "✅ Tag '$TAG' ist neu. Fortfahren..."
+          fi
+
+      # 5) Release anlegen (Prerelease, wenn SNAPSHOT)
       - name: Create Release
         id: create
         uses: actions/create-release@v1
@@ -39,13 +86,16 @@ jobs:
           tag_name: ${{ steps.vars.outputs.version }}
           release_name: ${{ steps.vars.outputs.version }}
           draft: false
-          prerelease: false
+          # Prerelease = true, wenn Version auf "-SNAPSHOT" endet
+          prerelease: ${{ endsWith( steps.vars.outputs.version, '-SNAPSHOT' ) }}
+
+      # 6) JAR hochladen
       - name: Upload JAR
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create.outputs.upload_url }}
-          asset_path: $(ls build/libs/*.jar | head -n 1)
+          asset_path: ${{ steps.jar.outputs.jar_path }}
           asset_name: nextcore-${{ steps.vars.outputs.version }}.jar
           asset_content_type: application/java-archive

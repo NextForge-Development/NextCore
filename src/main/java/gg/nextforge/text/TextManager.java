@@ -1,5 +1,6 @@
 package gg.nextforge.text;
 
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -109,6 +110,23 @@ public class TextManager {
     }
 
     /**
+     * Parses a message with MiniMessage and placeholders.
+     *
+     * @param message The message containing MiniMessage tags and placeholders.
+     * @param player  The player for placeholder context (can be null).
+     * @return A parsed Component ready to send.
+     */
+    public Component parse(String message, Audience player) {
+        // Replace placeholders if a player is provided
+        if (player != null) {
+            message = replacePlaceholders(message, player);
+        }
+
+        // Parse the message using MiniMessage
+        return miniMessage.deserialize(message);
+    }
+
+    /**
      * Parses a message and converts it to a legacy string.
      *
      * @param message The message containing MiniMessage tags and placeholders.
@@ -146,6 +164,16 @@ public class TextManager {
     }
 
     /**
+     * Sends a parsed message to a player.
+     *
+     * @param player  The player to send the message to.
+     * @param message The message to parse and send.
+     */
+    public void send(Audience player, String message) {
+        player.sendMessage(parse(message, player));
+    }
+
+    /**
      * Broadcasts a parsed message to all online players.
      *
      * @param message The message to parse and broadcast.
@@ -176,6 +204,42 @@ public class TextManager {
             if (resolver != null) {
                 try {
                     String replacement = resolver.apply(player);
+                    matcher.appendReplacement(result,
+                            Matcher.quoteReplacement(replacement));
+                } catch (Exception e) {
+                    // Use placeholder as-is if resolver fails
+                    matcher.appendReplacement(result, matcher.group(0));
+                }
+            } else {
+                // Leave unknown placeholders as-is
+                matcher.appendReplacement(result, matcher.group(0));
+            }
+        }
+
+        matcher.appendTail(result);
+        return result.toString();
+    }
+
+    /**
+     * Replaces placeholders in a message.
+     *
+     * @param message The message containing placeholders.
+     * @param player  The player for placeholder context.
+     * @return The message with placeholders replaced.
+     */
+    public String replacePlaceholders(String message, Audience player) {
+        if (player == null) return message;
+
+        Matcher matcher = placeholderPattern.matcher(message);
+        StringBuilder result = new StringBuilder();
+
+        while (matcher.find()) {
+            String placeholder = matcher.group(1).toLowerCase();
+            Function<Player, String> resolver = placeholders.get(placeholder);
+
+            if (resolver != null) {
+                try {
+                    String replacement = resolver.apply(null);
                     matcher.appendReplacement(result,
                             Matcher.quoteReplacement(replacement));
                 } catch (Exception e) {

@@ -1,13 +1,12 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.17"
-    id("com.gradleup.shadow") version "8.3.8"
+    id "io.papermc.paperweight.userdev" version "2.0.0-beta.17"
+    id "com.gradleup.shadow" version "8.3.8"
 }
 
 group = 'gg.nextforge'
-version = '1.0-SNAPSHOT'
-
+version = '1.3-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -44,10 +43,17 @@ subprojects {
         implementation "com.google.code.gson:gson:2.10.1"
         implementation "org.bstats:bstats-bukkit:3.0.2"
     }
-}
 
-test {
-    useJUnitPlatform()
+    // Version-Injection auch in Subprojects, falls benötigt
+    tasks.withType(ProcessResources).configureEach {
+        filesMatching("plugin.yml") {
+            expand(
+                    version: project.version,
+                    group: project.group,
+                    name: project.name
+            )
+        }
+    }
 }
 
 java {
@@ -66,29 +72,29 @@ tasks {
         options.encoding = "UTF-8"
     }
 
+    // Haupt-Versionserweiterung für plugin.yml
     processResources {
         filesMatching("plugin.yml") {
             expand(
-                version: project.version,
-                group: project.group,
-                name: project.name
+                    version: project.version,
+                    group: project.group,
+                    name: project.name
             )
         }
     }
 }
 
 shadowJar {
+    dependsOn(processResources)
     relocate("org.mozilla.javascript", "gg.nextforge.libraries.rhino")
     relocate("com.google.gson", "gg.nextforge.libraries.gson")
     relocate("org.bstats", "gg.nextforge.libraries.bstats")
 }
 
 publishing {
-
     repositories {
         mavenLocal()
     }
-
     publications {
         create("mavenJava", MavenPublication) {
             from components.java

@@ -51,11 +51,6 @@ public abstract class NextForgePlugin extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        if (isCore()) {
-            getSLF4JLogger().info("[NextForge] {} v{} is running as the core plugin.", getName(), getPluginVersion());
-        }
-        getSLF4JLogger().info("[NextForge] Initializing {} v{}...", getName(), getPluginVersion());
-
         this.metrics = new Metrics(this, getMetricsId());
 
         this.configManager = new ConfigManager(this);
@@ -66,16 +61,10 @@ public abstract class NextForgePlugin extends JavaPlugin {
 
         boolean isReload = getServer().getPluginManager().isPluginEnabled("NextForge");
         enable(isReload);
-        if (!isCore()) {
-            getSLF4JLogger().info("[NextForge] {} v{} enabled.", getName(), getPluginVersion());
-        }
     }
 
     @Override
     public void onDisable() {
         disable();
-        if (!isCore()) {
-            getSLF4JLogger().info("[NextForge] {} v{} disabled.", getName(), getPluginVersion());
-        }
     }
 }
