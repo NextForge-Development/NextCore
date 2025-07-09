@@ -23,17 +23,13 @@ public class NextCoreCommand {
     }
 
     private void handleRootCommand(CommandContext context) {
-        context.replyMini("<gold>╔════════════</gold> <yellow>NextCore v" + plugin.getPluginVersion() + "</yellow> <gold>═════════════</gold>");
-        context.replyMini("<gold>║</gold> ");
-        context.replyMini("<gold>║</gold> <gray>/nextcore <yellow>reload</yellow><dark_gray> - </dark_gray>Reloads the NextCore configuration");
-        context.replyMini("<gold>║</gold> <gray>/nextcore <yellow>version</yellow><dark_gray> - </dark_gray>Displays the NextCore version");
-        context.replyMini("<gold>║</gold> <gray>/nextcore <yellow>debug</yellow><dark_gray> - </dark_gray>Toggles debug mode for NextCore");
-        context.replyMini("<gold>║</gold> <gray>/nextcore <yellow>info</yellow><dark_gray> - </dark_gray>Get server information");
-        context.replyMini("<gold>║</gold> <gray>/nextcore <yellow>test</yellow><dark_gray> - </dark_gray>Run test commands");
-        context.replyMini("<gold>║</gold> <gray>/nextcore <yellow>managers</yellow><dark_gray> - </dark_gray>See the managers doing their job");
-        context.replyMini("<gold>║</gold> <gray>/nextcore <yellow>help</yellow><dark_gray> - </dark_gray>Shows this help message");
-        context.replyMini("<gold>║</gold> ");
-        context.replyMini("<gold>╚════════════</gold> <yellow>NextCore v" + plugin.getPluginVersion() + "</yellow> <gold>═════════════</gold>");
+        plugin.getMessagesFile().getStringList("commands.nextcore.help").forEach(line -> {
+            line = line.replace("%prefix%", plugin.getMessagesFile().getString("general.prefix", "<dark_gray>[<gradient:aqua:dark_aqua>ɴᴇxᴛᴄᴏʀᴇ<dark_gray>]</gradient></dark_gray>"));
+            line = line.replace("%version%", plugin.getPluginVersion());
+            line = line.replace("%author%", "NextForge Team");
+            line = line.replace("%website%", "https://nextforge.gg");
+            context.replyMini(line);
+        });
     }
 
     private void handleReloadCommand(CommandContext context) {
@@ -43,10 +39,10 @@ public class NextCoreCommand {
             plugin.getConfigManager().reloadAll();
 
             long time = System.currentTimeMillis() - start;
-            plugin.getTextManager().send(context.sender(), plugin.getMessagesFile().getString("reload.success", "%prefix% <green>Configuration reloaded successfully.</green> <gray>(%time%ms)</gray>").replace("%time%", time + ""));
+            plugin.getTextManager().send(context.sender(), plugin.getMessagesFile().getString("commands.nextcore.reload.success", "%prefix% <green>Configuration reloaded successfully.</green> <gray>(%time%ms)</gray>").replace("%time%", time + ""));
         } catch (Exception e) {
             plugin.getSLF4JLogger().error("Failed to reload configuration", e);
-            plugin.getTextManager().send(context.sender(), plugin.getMessagesFile().getString("reload.error", "%prefix% <red>Failed to reload configuration: %error%").replace("%error%", e.getMessage()));
+            plugin.getTextManager().send(context.sender(), plugin.getMessagesFile().getString("commands.nextcore.reload.error", "%prefix% <red>Failed to reload configuration: %error%").replace("%error%", e.getMessage()));
         }
     }
 
