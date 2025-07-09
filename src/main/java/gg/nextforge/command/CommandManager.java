@@ -4,6 +4,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -70,23 +71,7 @@ public class CommandManager {
             CommandMap commandMap = (CommandMap) commandMapField.get(plugin.getServer());
 
             // Create a Bukkit command that delegates to the custom command system
-            Command bukkitCommand = new Command(command.getName()) {
-                @Override
-                public boolean execute(CommandSender sender, String label, String[] args) {
-                    return command.execute(sender, label, args);
-                }
-
-                @Override
-                public List<String> tabComplete(CommandSender sender, String alias, String[] args) {
-                    return command.tabComplete(sender, alias, args);
-                }
-            };
-
-            // Set command properties
-            bukkitCommand.setDescription(command.getDescription());
-            bukkitCommand.setUsage(command.getUsage());
-            bukkitCommand.setPermission(command.getPermission());
-            bukkitCommand.setAliases(command.getAliases());
+            Command bukkitCommand = getCommand(command);
 
             // Register the command with Bukkit
             commandMap.register(plugin.getName().toLowerCase(), bukkitCommand);
@@ -95,6 +80,27 @@ public class CommandManager {
             plugin.getLogger().severe("Failed to register command: " + command.getName());
             e.printStackTrace();
         }
+    }
+
+    private static @NotNull Command getCommand(CoreCommand command) {
+        Command bukkitCommand = new Command(command.getName()) {
+            @Override
+            public boolean execute(CommandSender sender, String label, String[] args) {
+                return command.execute(sender, label, args);
+            }
+
+            @Override
+            public List<String> tabComplete(CommandSender sender, String alias, String[] args) {
+                return command.tabComplete(sender, alias, args);
+            }
+        };
+
+        // Set command properties
+        bukkitCommand.setDescription(command.getDescription());
+        bukkitCommand.setUsage(command.getUsage());
+        bukkitCommand.setPermission(command.getPermission());
+        bukkitCommand.setAliases(command.getAliases());
+        return bukkitCommand;
     }
 
     /**

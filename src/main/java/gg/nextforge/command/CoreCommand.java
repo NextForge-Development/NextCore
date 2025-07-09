@@ -66,7 +66,7 @@ public class CoreCommand {
         }
 
         // No executor set, show usage
-        sender.sendMessage("§cUsage: " + usage);
+        // TODO: show usage message
         return true;
     }
 

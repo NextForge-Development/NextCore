@@ -163,7 +163,7 @@ public class CoreAutoUpdater {
         return CompletableFuture.supplyAsync(() -> {
             JsonObject release;
             try {
-                if (currentVersion != null && currentVersion.endsWith("-SNAPSHOT") && dev) {
+                if (currentVersion != null && dev) {
                     release = getLatestDevRelease();
                 } else {
                     release = getLatestRelease();
