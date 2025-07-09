@@ -216,6 +216,15 @@ public record CommandContext(CommandSender sender, String label, String[] args) 
     }
 
     /**
+     * Sends a message in minimessage format to the sender.
+     *
+     * @param message The message to send.
+     */
+    public void replyMini(String message) {
+        sender.sendRichMessage(message);
+    }
+
+    /**
      * Gets the plugin instance.
      *
      * @return The NextForgePlugin instance.

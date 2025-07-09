@@ -1,5 +1,6 @@
 package gg.nextforge;
 
+import gg.nextforge.command.builtin.NextCoreCommand;
 import gg.nextforge.config.ConfigFile;
 import gg.nextforge.config.ConfigManager;
 import gg.nextforge.console.ConsoleHeader;
@@ -7,13 +8,16 @@ import gg.nextforge.plugin.NextForgePlugin;
 import gg.nextforge.scheduler.CoreScheduler;
 import gg.nextforge.scheduler.ScheduledTask;
 import gg.nextforge.updater.CoreAutoUpdater;
+import lombok.Getter;
 
 import java.io.IOException;
 import java.util.UUID;
 
+@Getter
 public class NextCorePlugin extends NextForgePlugin {
 
     ConfigFile configFile;
+    ConfigFile messagesFile;
     ScheduledTask updateCheckTask;
 
     @Override
@@ -34,6 +38,13 @@ public class NextCorePlugin extends NextForgePlugin {
         }
 
         configFile = getConfigManager().loadConfig("config.yml");
+        messagesFile = getConfigManager().loadConfig("messages.yml");
+
+        getTextManager().placeholder("prefix", p -> {
+            return messagesFile.getString("general.prefix", "<dark_gray>[<gradient:aqua:dark_aqua>ɴᴇxᴛᴄᴏʀᴇ<dark_gray>]</gradient></dark_gray>");
+        });
+
+        new NextCoreCommand(this);
 
         ConsoleHeader.send(this);
 

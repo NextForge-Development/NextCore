@@ -1,0 +1,7 @@
+general:
+  prefix: "<dark_gray>[<gradient:aqua:dark_aqua>ɴᴇxᴛᴄᴏʀᴇ<dark_gray>]</gradient></dark_gray>"
+  no-permission: "%prefix% <red>You do not have permission to perform this action.</red>"
+
+reload:
+  success: "%prefix% <green>Configuration reloaded successfully.</green> <gray>(%time%ms)</gray>"
+  failure: "%prefix% <red>Failed to reload configuration: %error%</red>"
