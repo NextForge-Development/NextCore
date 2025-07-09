@@ -76,7 +76,7 @@ jobs:
             echo "✅ Tag '$TAG' ist neu. Fortfahren..."
           fi
 
-      # 5) Release anlegen
+      # 5) Release anlegen (Prerelease, wenn SNAPSHOT)
       - name: Create Release
         id: create
         uses: actions/create-release@v1
@@ -86,7 +86,8 @@ jobs:
           tag_name: ${{ steps.vars.outputs.version }}
           release_name: ${{ steps.vars.outputs.version }}
           draft: false
-          prerelease: false
+          # Prerelease = true, wenn Version auf "-SNAPSHOT" endet
+          prerelease: ${{ endsWith( steps.vars.outputs.version, '-SNAPSHOT' ) }}
 
       # 6) JAR hochladen
       - name: Upload JAR
