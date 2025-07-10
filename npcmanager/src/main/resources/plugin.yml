@@ -1,0 +1,7 @@
+name: NPCManager
+main: gg.nextforge.npc.NPCPlugin
+version: ${version}
+author: NextForge Team
+depend:
+  - NextForge-Core
+api-version: 1.19

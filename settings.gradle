@@ -1,2 +1,4 @@
 rootProject.name = 'NextCore'
 include 'examples'
+include 'npcmanager'
+include 'fancynpcs'

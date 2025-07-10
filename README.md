@@ -60,3 +60,18 @@ This project is not affiliated with Mojang AB, the original developers of Minecr
 We would like to acknowledge the following projects and libraries that have inspired or contributed to the development of the NextForge Core Plugin:
 - **Spigot & PaperMC**: For their contributions to the Minecraft server development community.
 - **Bukkit**: For its foundational work in creating a plugin system for Minecraft.
+
+
+## FancyNPCs Plugin
+
+FancyNPCs provides a basic NPC system using the `/npc` command. Persistent NPCs are saved in `plugins/FancyNPCs/npcs.yml` unless marked as transient.
+
+### Commands
+- `/npc help [page]`
+- `/npc create <name>` – create an NPC at your location
+- `/npc copy <npc> <new_name>` – duplicate an existing NPC
+- `/npc remove <npc>` – delete an NPC
+- `/npc list` – list all NPCs
+- `/npc info <npc>` – show information about an NPC
+
+Other subcommands for customizing NPCs are available; use `/npc help` for details.

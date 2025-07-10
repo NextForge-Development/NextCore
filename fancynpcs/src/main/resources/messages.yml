@@ -1,0 +1,14 @@
+# Generic error message
+error: "&cAn error occurred while executing the command."
+
+# Usage messages
+usage_create: "&eUsage: /npc create <name> [--position x y z] [--world world] [--type type]"
+usage_copy: "&eUsage: /npc copy <npc> <new_name>"
+usage_remove: "&eUsage: /npc remove <npc>"
+usage_list: "&eUsage: /npc list"
+usage_info: "&eUsage: /npc info <npc>"
+usage_help: "&eUsage: /npc help [page]"
+
+# Success messages
+npc_created: "&aNPC {name} created."
+npc_removed: "&aNPC {name} removed."
