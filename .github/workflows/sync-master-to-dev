@@ -1,0 +1,69 @@
+name: Sync master → dev
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  sync-to-dev:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out the full repository (all branches)
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # 2. Configure Git user for commits
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # 3. Attempt to merge master into dev (or create dev if it doesn't exist)
+      - name: Merge master into dev
+        id: merge
+        run: |
+          # Switch to dev branch, or create it if missing
+          if git show-ref --quiet refs/heads/dev; then
+            git checkout dev
+          else
+            git checkout -b dev
+          fi
+
+          # Merge origin/master into dev and capture exit code
+          git merge origin/master --no-edit
+        continue-on-error: true
+
+      # 4. If merge succeeded, push dev back to remote
+      - name: Push changes if merge succeeded
+        if: steps.merge.outcome == 'success'
+        run: git push origin dev
+
+      # 5. If merge failed (conflicts), open a PR and request reviewers
+      - name: Open Pull Request on conflicts
+        if: steps.merge.outcome == 'failure'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Create a Pull Request from master → dev
+            const pr = await github.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: 'master',
+              base: 'dev',
+              title: '🔀 Merge master → dev (conflicts)',
+              body: 'Automatic merge from **master** into **dev** failed due to conflicts. Please resolve and merge.',
+              draft: false
+            });
+
+            // Request review from your team — replace with actual GitHub usernames
+            await github.pulls.requestReviewers({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.data.number,
+              reviewers: ['whynotmax'] //Add more if needed
+            });
