@@ -1,6 +1,7 @@
 general:
   prefix: "<dark_gray>[<gradient:aqua:dark_aqua>ɴᴇxᴛᴄᴏʀᴇ<dark_gray>]</gradient></dark_gray>"
   no-permission: "%prefix% <red>You do not have permission to perform this action.</red>"
+  only-players: "%prefix% <red>This command can only be used by players.</red>"
 
 commands:
   nextcore:
@@ -22,3 +23,228 @@ commands:
     reload:
       success: "%prefix% <green>Configuration reloaded successfully.</green> <gray>(%time%ms)</gray>"
       error: "%prefix% <red>Failed to reload configuration: %error%</red>"
+  npc:
+    help:
+      header:
+        - "<gold>┌───────────</gold> <yellow>NPCManager (%page%/%max%)</yellow> <gold>───────────</gold>"
+        - "<gold>│</gold>"
+      footer:
+        - "<gold>│</gold>"
+        - "<gold>└───────────</gold> <yellow>NPCManager (%page%/%max%)</yellow> <gold>───────────</gold>"
+      lines:
+        - "<gold>│</gold>  <gray>/npc <yellow>help [page]</yellow> <dark_gray>- </dark_gray>Displays this help message"
+        - "<gold>│</gold>  <gray>/npc <yellow>create (name)</yellow> <dark_gray>- </dark_gray>Create a new NPC with the given name"
+        - "<gold>│</gold>  <gray>/npc <yellow>copy (npc) (new_name)</yellow> <dark_gray>- </dark_gray>Copy an existing NPC"
+        - "<gold>│</gold>  <gray>/npc <yellow>remove (npc)</yellow> <dark_gray>- </dark_gray>Remove an NPC"
+        - "<gold>│</gold>  <gray>/npc <yellow>list [page]</yellow> <dark_gray>- </dark_gray>List NPCs"
+        - "<gold>│</gold>  <gray>/npc <yellow>info (npc)</yellow> <dark_gray>- </dark_gray>Show NPC info"
+        - "<gold>│</gold>  <gray>/npc <yellow>type (npc) (type)</yellow> <dark_gray>- </dark_gray>Set NPC type"
+        - "<gold>│</gold>  <gray>/npc <yellow>displayname (npc) (@none | name)</yellow> <dark_gray>- </dark_gray>Set or clear NPC display name"
+        - "<gold>│</gold>  <gray>/npc <yellow>skin (npc) (@none | @mirror | name | url | file) [--slim]</yellow> <dark_gray>- </dark_gray>Set NPC skin"
+        - "<gold>│</gold>  <gray>/npc <yellow>equipment (npc) (set | clear | list)</yellow> <dark_gray>- </dark_gray>Manage NPC equipment"
+        - "<gold>│</gold>  <gray>/npc <yellow>glowing (npc) [disabled | color]</yellow> <dark_gray>- </dark_gray>Set NPC glowing effect"
+        - "<gold>│</gold>  <gray>/npc <yellow>show_in_tab (npc) [state]</yellow> <dark_gray>- </dark_gray>Show/hide NPC in tab list"
+        - "<gold>│</gold>  <gray>/npc <yellow>collidable (npc) [state]</yellow> <dark_gray>- </dark_gray>Set NPC collidable state"
+        - "<gold>│</gold>  <gray>/npc <yellow>scale (npc) factor</yellow> <dark_gray>- </dark_gray>Set NPC scale"
+        - "<gold>│</gold>  <gray>/npc <yellow>attribute (npc) (set | remove | list)</yellow> <dark_gray>- </dark_gray>Manage NPC attributes"
+        - "<gold>│</gold>  <gray>/npc <yellow>turn_to_player (npc) [state]</yellow> <dark_gray>- </dark_gray>Toggle NPC turn to player"
+        - "<gold>│</gold>  <gray>/npc <yellow>turn_to_player_distance (npc) [distance]</yellow> <dark_gray>- </dark_gray>Set turn to player distance"
+        - "<gold>│</gold>  <gray>/npc <yellow>move_here (npc)</yellow> <dark_gray>- </dark_gray>Move NPC to your location"
+        - "<gold>│</gold>  <gray>/npc <yellow>move_to (npc) x y z [world] [--look-in-my-direction]</yellow> <dark_gray>- </dark_gray>Move NPC to coordinates"
+        - "<gold>│</gold>  <gray>/npc <yellow>center (npc)</yellow> <dark_gray>- </dark_gray>Center NPC on block"
+        - "<gold>│</gold>  <gray>/npc <yellow>nearby [--radius radius] [--type type] [--sort sort]</yellow> <dark_gray>- </dark_gray>List nearby NPCs"
+        - "<gold>│</gold>  <gray>/npc <yellow>teleport (npc)</yellow> <dark_gray>- </dark_gray>Teleport to NPC"
+        - "<gold>│</gold>  <gray>/npc <yellow>action (npc) (trigger) add|add_before|add_after|set|remove|move_up|move_down|clear|list [params]</yellow> <dark_gray>- </dark_gray>Manage NPC actions"
+        - "<gold>│</gold>  <gray>/npc <yellow>interaction_cooldown (npc) [disabled | duration]</yellow> <dark_gray>- </dark_gray>Set NPC interaction cooldown"
+      invalid-page: "%prefix% <red>Invalid page number. Use /npc help to see available pages.</red>"
+    create:
+      usage: "%prefix% <red>Usage: /npc create (name)</red>"
+      already-exists: "%prefix% <red>An NPC with the name '%name%' already exists.</red>"
+      success: "%prefix% <green>NPC '%name%' created successfully at your location.</green>"
+    copy:
+      usage: "%prefix% <red>Usage: /npc copy (npc) (new_name)</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      already-exists: "%prefix% <red>An NPC with the name '%new_name%' already exists.</red>"
+      success: "%prefix% <green>NPC '%npc%' copied to '%new_name%' successfully.</green>"
+    remove:
+      usage: "%prefix% <red>Usage: /npc remove (npc)</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      success: "%prefix% <green>NPC '%name%' removed successfully.</green>"
+    list:
+      empty: "%prefix% <red>No NPCs found.</red>"
+      headers:
+        - "<gold>┌─────────────</gold> <yellow>NPC List (%page%/%max%)</yellow> <gold>─────────────</gold>"
+        - "<gold>│</gold>"
+      footer:
+        - "<gold>│</gold>"
+        - "<gold>└─────────────</gold> <yellow>NPC List (%page%/%max%)</yellow> <gold>─────────────</gold>"
+      line: "<gold>│</gold>  <hover:show_text:'Click to teleport to %name%'><click:run_command='/npc info %name%'><gray>%id% <yellow>%name%</yellow> <dark_gray>- </dark_gray>%type% <gray>(%skin%)</gray></click></hover>"
+    info:
+      usage: "%prefix% <red>Usage: /npc info (npc)</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      header:
+        - "<gold>┌─────────────</gold> <yellow>NPC Info: %name%</yellow> <gold>─────────────</gold>"
+        - "<gold>│</gold>"
+      footer:
+        - "<gold>│</gold>"
+        - "<gold>└─────────────</gold> <yellow>NPC Info: %name%</yellow> <gold>─────────────</gold>"
+      lines:
+        - "<gold>│</gold>  <gray>ID: %id%</gray>"
+        - "<gold>│</gold>  <gray>Type: %type%</gray>"
+        - "<gold>│</gold>  <gray>Display Name: %display_name%</gray>"
+        - "<gold>│</gold>  <gray>Skin: %skin%</gray>"
+        - "<gold>│</gold>  <gray>Equipment: %equipment%</gray>"
+        - "<gold>│</gold>  <gray>Glowing: %glowing%</gray>"
+        - "<gold>│</gold>  <gray>Show in Tab: %show_in_tab%</gray>"
+        - "<gold>│</gold>  <gray>Collidable: %collidable%</gray>"
+        - "<gold>│</gold>  <gray>Scale: %scale%</gray>"
+        - "<gold>│</gold>  <gray>Turn to Player: %turn_to_player%</gray>"
+        - "<gold>│</gold>  <gray>Turn to Player Distance: %turn_to_player_distance%</gray>"
+        - "<gold>│</gold>  <gray>Transient: %transient%</gray>"
+        - "<gold>│</gold>  <gray>X: %x% Y: %y% Z: %z% World: %world%</gray>"
+      actions:
+        header: "<gold>│</gold>  <gray>Actions:</gray>"
+        empty: "<gold>│</gold>  <gray>No actions defined.</gray>"
+        line: "<gold>│</gold>  <gray>- %action% (%trigger%)</gray>"
+      attributes:
+        header: "<gold>│</gold>  <gray>Attributes:</gray>"
+        empty: "<gold>│</gold>  <gray>No attributes defined.</gray>"
+        line: "<gold>│</gold>  <gray>- %attribute% (%value%)</gray>"
+    type:
+      usage: "%prefix% <red>Usage: /npc type (npc) (type)</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      invalid-type: "%prefix% <red>Invalid NPC type '%type%'. Valid types are: %valid_types%</red>"
+      success: "%prefix% <green>NPC '%name%' type set to '%type%'.</green>"
+    displayname:
+      usage: "%prefix% <red>Usage: /npc displayname (npc) (@none | name)</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      success-set: "%prefix% <green>NPC '%name%' display name set to '%display_name%'.</green>"
+      success-cleared: "%prefix% <green>NPC '%name%' display name cleared.</green>"
+      invalid-name: "%prefix% <red>Invalid display name '%display_name%'. Use '@none' to clear.</red>"
+    skin:
+      usage: "%prefix% <red>Usage: /npc skin (npc) (@none | @mirror | name | url | file) [--slim]</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      success: "%prefix% <green>NPC '%name%' skin set to '%skin%'.</green>"
+      mirror-only-player: "%prefix% <red>NPC skin type '@mirror' can only be used on player NPCs and by a player.</red>"
+      invalid-skin: "%prefix% <red>Invalid skin type '%skin_type%'. Valid types are: @none, @mirror, name, url, file.</red>"
+    equipment:
+        usage: "%prefix% <red>Usage: /npc equipment (npc) (set | clear | list)</red>"
+        not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+        not-spawned: "%prefix% <red>NPC '%name%' must be spawned to manage equipment.</red>"
+        not-living-entity: "%prefix% <red>NPC '%name%' is not a living entity and cannot have equipment.</red>"
+        no-equipment: "%prefix% <red>NPC '%name%'s equipment is null.</red>"
+        set-success: "%prefix% <green>NPC '%name%' equipment slot %slot% set to %material%.</green>"
+        invalid-slot: "%prefix% <red>Invalid equipment slot '%slot%'. Valid slots are: %valid_slots%</red>"
+        invalid-material: "%prefix% <red>Invalid material '%material%'.</red>"
+        clear-success: "%prefix% <green>NPC '%name%' equipment cleared successfully.</green>"
+        list:
+          empty: "%prefix% <red>No equipment items found for NPC '%name%'.</red>"
+          header:
+          - "<gold>┌─────────────</gold> <yellow>Equipment for %name%</yellow> <gold>─────────────</gold>"
+          - "<gold>│</gold>"
+          footer:
+          - "<gold>│</gold>"
+          - "<gold>└─────────────</gold> <yellow>Equipment for %name%</yellow> <gold>─────────────</gold>"
+          line: "<gold>│</gold>  <gray>%slot%: %item%</gray>"
+    glowing:
+      usage: "%prefix% <red>Usage: /npc glowing (npc) [disabled | color]</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      invalid-color: "%prefix% <red>Invalid color '%color%'. Available colors: %valid_colors%</red>"
+      success: "%prefix% <green>NPC '%name%' glowing effect set to '%state%'.</green>"
+    show_in_tab:
+      usage: "%prefix% <red>Usage: /npc show_in_tab (npc) [true | false]</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      invalid-state: "%prefix% <red>Invalid state '%state%'. Use 'true' or 'false'.</red>"
+      success: "%prefix% <green>NPC '%name%' show in tab state set to '%state%'.</green>"
+    collidable:
+      usage: "%prefix% <red>Usage: /npc collidable (npc) [true | false]</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      invalid-state: "%prefix% <red>Invalid state '%state%'. Use 'true' or 'false'.</red>"
+      success: "%prefix% <green>NPC '%name%' collidable state set to '%state%'.</green>"
+    scale:
+      usage: "%prefix% <red>Usage: /npc scale (npc) (factor)</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      invalid-factor: "%prefix% <red>Invalid scale factor '%factor%'. Must be a positive number.</red>"
+      success: "%prefix% <green>NPC '%name%' scale set to %factor%.</green>"
+    attribute:
+      usage: "%prefix% <red>Usage: /npc attribute (npc) (set | list)</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      list:
+        empty: "%prefix% <red>No attributes found for NPC '%name%'.</red>"
+        header:
+          - "<gold>┌─────────────</gold> <yellow>Attributes for %name%</yellow> <gold>─────────────</gold>"
+          - "<gold>│</gold>"
+        footer:
+          - "<gold>│</gold>"
+          - "<gold>└─────────────</gold> <yellow>Attributes for %name%</yellow> <gold>─────────────</gold>"
+        line: "<gold>│</gold>  <gray>%attribute%: %value%</gray>"
+      set:
+        success: "%prefix% <green>NPC '%name%' attribute '%attribute%' set to %value%.</green>"
+      remove:
+        not-found: "%prefix% <red>NPC '%name%' does not have attribute '%attribute%'.</red>"
+        success: "%prefix% <green>NPC '%name%' attribute '%attribute%' removed successfully.</green>"
+    turn_to_player:
+      usage: "%prefix% <red>Usage: /npc turn_to_player (npc) [true | false]</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      invalid-state: "%prefix% <red>Invalid state '%state%'. Use 'true' or 'false'.</red>"
+      success: "%prefix% <green>NPC '%name%' turn to player state set to '%state%'.</green>"
+    turn_to_player_distance:
+      usage: "%prefix% <red>Usage: /npc turn_to_player_distance (npc) [distance]</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      invalid-distance: "%prefix% <red>Invalid distance '%distance%'. Must be a positive number.</red>"
+      success: "%prefix% <green>NPC '%name%' turn to player distance set to %distance% blocks.</green>"
+    move_here:
+      usage: "%prefix% <red>Usage: /npc move_here (npc)</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      success: "%prefix% <green>NPC '%name%' moved to your current location.</green>"
+    move_to:
+      usage: "%prefix% <red>Usage: /npc move_to (npc) x y z [world] [--look-in-my-direction]</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      invalid-world: "%prefix% <red>World not found.</red>"
+      invalid-coordinates: "%prefix% <red>Invalid coordinates. Use /npc move_to (npc) x y z [world] [--look-in-my-direction].</red>"
+      success: "%prefix% <green>NPC '%name%' moved to coordinates (%x%, %y%, %z%) in world '%world%'.</green>"
+      look-in-my-direction: "%prefix% <green>NPC '%name%' will now look in your direction.</green>"
+    center:
+      usage: "%prefix% <red>Usage: /npc center (npc)</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      success: "%prefix% <green>NPC '%name%' centered on the block at its current location.</green>"
+    nearby:
+      usage: "%prefix% <red>Usage: /npc nearby [--radius radius]</red>"
+      radius:
+        invalid: "%prefix% <red>Invalid radius '%radius%'. Must be a positive number.</red>"
+      empty: "%prefix% <red>No nearby NPCs found.</red>"
+      headers:
+        - "<gold>┌─────────────</gold> <yellow>Nearby NPCs (%radius%)</yellow> <gold>─────────────</gold>"
+        - "<gold>│</gold>"
+      footer:
+        - "<gold>│</gold>"
+        - "<gold>└─────────────</gold> <yellow>Nearby NPCs (%radius%)</yellow> <gold>─────────────</gold>"
+      line: "<gold>│</gold>  <hover:show_text:'Click to teleport to %name%'><click:run_command='/npc info %name%'><gray>%id% <yellow>%name%</yellow> <dark_gray>- </dark_gray>%away% blocks away</click></hover>"
+    teleport:
+      usage: "%prefix% <red>Usage: /npc teleport (npc)</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      success: "%prefix% <green>Teleported to NPC '%name%' at (%x%, %y%, %z%) in world '%world%'.</green>"
+    action:
+      usage: "%prefix% <red>Usage: /npc action (npc) add|remove|clear|list [params]</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      add:
+        success: "%prefix% <green>Action '%action%' added to NPC '%name%'.</green>"
+      list:
+        empty: "%prefix% <red>NPC '%name%' has no actions.</red>"
+        header:
+          - "<gold>┌─────────────</gold> <yellow>Actions for %name%</yellow> <gold>─────────────</gold>"
+          - "<gold>│</gold>"
+        footer:
+          - "<gold>│</gold>"
+          - "<gold>└─────────────</gold> <yellow>Actions for %name%</yellow> <gold>─────────────</gold>"
+        line: "<gold>│</gold>  <gray>%action%</gray>"
+      remove:
+        not-found: "%prefix% <red>Action '%action%' not found for NPC '%name%'.</red>"
+        success: "%prefix% <green>Action '%action%' removed from NPC '%name%'.</green>"
+      clear:
+        success: "%prefix% <green>All actions cleared for NPC '%name%'.</green>"
+    interaction_cooldown:
+      usage: "%prefix% <red>Usage: /npc interaction_cooldown (npc) [disabled | duration]</red>"
+      not-found: "%prefix% <red>NPC '%name%' not found.</red>"
+      invalid-ticks: "%prefix% <red>Invalid duration '%ticks%'. Must be a positive number or 'disabled'.</red>"
+      success: "%prefix% <green>NPC '%name%' interaction cooldown set to '%ticks%' ticks.</green>"

@@ -3,6 +3,7 @@ package gg.nextforge.plugin;
 import gg.nextforge.NextCorePlugin;
 import gg.nextforge.command.CommandManager;
 import gg.nextforge.config.ConfigManager;
+import gg.nextforge.npc.NPCManager;
 import gg.nextforge.protocol.ProtocolManager;
 import gg.nextforge.scheduler.CoreScheduler;
 import gg.nextforge.text.TextManager;
@@ -23,6 +24,7 @@ public abstract class NextForgePlugin extends JavaPlugin {
     CoreScheduler scheduler;
     CommandManager commandManager;
     TextManager textManager;
+    NPCManager npcManager;
     ProtocolManager protocolManager;
     Metrics metrics;
 
@@ -57,6 +59,7 @@ public abstract class NextForgePlugin extends JavaPlugin {
         this.scheduler = new CoreScheduler(this);
         this.commandManager = new CommandManager(this);
         this.textManager = new TextManager(this);
+        this.npcManager = new NPCManager(this);
         this.protocolManager = new ProtocolManager(this);
 
         boolean isReload = getServer().getPluginManager().isPluginEnabled("NextForge");

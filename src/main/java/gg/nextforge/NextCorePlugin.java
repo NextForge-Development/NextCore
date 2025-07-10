@@ -1,5 +1,6 @@
 package gg.nextforge;
 
+import gg.nextforge.command.builtin.NPCCommand;
 import gg.nextforge.command.builtin.NextCoreCommand;
 import gg.nextforge.config.ConfigFile;
 import gg.nextforge.config.ConfigManager;
@@ -9,6 +10,7 @@ import gg.nextforge.scheduler.CoreScheduler;
 import gg.nextforge.scheduler.ScheduledTask;
 import gg.nextforge.updater.CoreAutoUpdater;
 import lombok.Getter;
+import org.checkerframework.checker.units.qual.N;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -45,6 +47,7 @@ public class NextCorePlugin extends NextForgePlugin {
         });
 
         new NextCoreCommand(this);
+        new NPCCommand(this, getNpcManager());
 
         ConsoleHeader.send(this);
 
