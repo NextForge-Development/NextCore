@@ -39,6 +39,7 @@ public class NPCCommand {
                 .permission("nextforge.command.npc")
                 .description("Manage your npc's with ease.")
                 .aliases("npcs", "npcmanager")
+                .executor(this::handleHelp)
                 .subcommand("help", this::handleHelp)
                 .subcommand("create", this::handleCreate)
                 .subcommand("copy", this::handleCopy)
@@ -104,7 +105,7 @@ public class NPCCommand {
 
     private void handleCreate(CommandContext ctx) {
         if (ctx.args().length < 1) {
-            textManager.send(ctx.sender(), "Usage: /npc create <id>");
+            textManager.send(ctx.sender(), plugin.getMessagesFile().getString("commands.npc.create.usage", "%prefix% <red>Usage: /npc create (name)</red>"));
             return;
         }
         String id = ctx.args()[0];

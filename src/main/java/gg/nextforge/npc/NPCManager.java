@@ -3,6 +3,7 @@ package gg.nextforge.npc;
 import gg.nextforge.npc.model.NPC;
 import gg.nextforge.plugin.NextForgePlugin;
 import lombok.Getter;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -11,6 +12,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -149,15 +151,19 @@ public class NPCManager {
      * @param npc The NPC to spawn.
      */
     private void spawn(NPC npc) {
-        if (npc.getLocation() == null) return;
-        EntityType type = EntityType.valueOf(npc.getType());
-        Entity entity = npc.getLocation().getWorld().spawnEntity(npc.getLocation(), type);
-        npc.setEntity(entity);
-        entity.setCustomName(npc.getDisplayName());
-        entity.setCustomNameVisible(true);
-        entity.setGlowing(npc.isGlowing());
-        if (!npc.isShowInTab()) {
-            entity.setMetadata("silent", new org.bukkit.metadata.FixedMetadataValue(plugin, true));
+        if (npc.getLocation() == null) return; // Ensure the NPC has a valid location before spawning
+        EntityType type = EntityType.valueOf(npc.getType()); // Get the entity type from the NPC configuration
+        Entity entity = npc.getLocation().getWorld().spawnEntity(npc.getLocation(), type); // Spawn the entity in the world
+        npc.setEntity(entity); // Set the entity reference in the NPC object
+        entity.customName(MiniMessage.miniMessage().deserialize(npc.getDisplayName())); // Set the NPC's display name
+        entity.setCustomNameVisible(true); // Make the NPC's name visible
+        entity.setGlowing(npc.isGlowing()); // Set glowing effect if enabled
+        entity.setInvulnerable(true); // Make NPC invulnerable to prevent damage
+        entity.setSilent(true); // Prevent NPC from making sounds
+        entity.setGravity(false); // Disable gravity for the NPC
+        if (entity instanceof LivingEntity livingEntity) {
+            livingEntity.setCollidable(npc.isCollidable()); // Set collidable state based on NPC configuration
+            livingEntity.setAI(false); // Disable AI to prevent NPC from moving on its own
         }
     }
 
