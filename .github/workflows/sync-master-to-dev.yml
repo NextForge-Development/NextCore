@@ -1,5 +1,8 @@
 name: Sync master → dev
 
+permissions:
+  contents: write
+
 on:
   push:
     branches:
