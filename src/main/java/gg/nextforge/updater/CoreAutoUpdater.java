@@ -103,7 +103,7 @@ public class CoreAutoUpdater {
     }
 
     /**
-     * Holt das neueste „Dev“-Release, also den ersten Prerelease mit '-SNAPSHOT'.
+     * Holt das neueste „Dev“-Release, also das neueste Prerelease mit '-SNAPSHOT'.
      * Fällt zurück auf das neueste stabile Release, falls kein Dev-Release gefunden wird.
      */
     private JsonObject getLatestDevRelease() throws IOException {
@@ -111,13 +111,22 @@ public class CoreAutoUpdater {
         try (InputStream in = conn.getInputStream();
              InputStreamReader reader = new InputStreamReader(in)) {
             JsonArray releases = gson.fromJson(reader, JsonArray.class);
+            JsonObject latestDev = null;
+            String latestDate = null;
             for (JsonElement el : releases) {
                 JsonObject rel = el.getAsJsonObject();
                 boolean prerelease = rel.get("prerelease").getAsBoolean();
                 String tagName = rel.get("tag_name").getAsString();
                 if (prerelease && tagName.endsWith("-SNAPSHOT")) {
-                    return rel;
+                    String createdAt = rel.get("created_at").getAsString();
+                    if (latestDev == null || createdAt.compareTo(latestDate) > 0) {
+                        latestDev = rel;
+                        latestDate = createdAt;
+                    }
                 }
+            }
+            if (latestDev != null) {
+                return latestDev;
             }
         }
         // Fallback
@@ -143,18 +152,19 @@ public class CoreAutoUpdater {
 
     /**
      * Determines whether the current version matches the latest release.
+     * Ignores build metadata (e.g., +build123).
      *
      * @return true if the current version is up-to-date
      * @throws IOException if the GitHub request fails
      */
     public boolean isLatestVersion() throws IOException {
         String latest = fetchLatestVersion();
-        return currentVersion != null && currentVersion.equalsIgnoreCase(latest);
+        return normalizeVersion(currentVersion).equalsIgnoreCase(normalizeVersion(latest));
     }
 
     /**
      * Downloads the latest release JAR if a newer version is available.
-     * Bei '-SNAPSHOT' im currentVersion: Dev-Release, sonst Stable.
+     * Bei '-SNAPSHOT' im currentVersion oder dev==true: Dev-Release, sonst Stable.
      *
      * @return the downloaded file, or null if no download occurred
      * @throws IOException if downloading fails
@@ -163,7 +173,7 @@ public class CoreAutoUpdater {
         return CompletableFuture.supplyAsync(() -> {
             JsonObject release;
             try {
-                if (currentVersion != null && dev) {
+                if ((currentVersion != null && currentVersion.endsWith("-SNAPSHOT")) || dev) {
                     release = getLatestDevRelease();
                 } else {
                     release = getLatestRelease();
@@ -173,7 +183,7 @@ public class CoreAutoUpdater {
             }
 
             String latest = release.get("tag_name").getAsString();
-            if (latest.equalsIgnoreCase(currentVersion)) {
+            if (normalizeVersion(latest).equalsIgnoreCase(normalizeVersion(currentVersion))) {
                 LOGGER.info("Already on the latest version: " + latest);
                 return null;
             }
@@ -194,6 +204,18 @@ public class CoreAutoUpdater {
             LOGGER.warning("No JAR asset found in the latest release");
             return null;
         });
+    }
+
+    /**
+     * Normalizes a version string by stripping build metadata (e.g., +build123).
+     */
+    private String normalizeVersion(String version) {
+        if (version == null) return "";
+        int plus = version.indexOf('+');
+        if (plus >= 0) {
+            return version.substring(0, plus);
+        }
+        return version;
     }
 
     private File downloadFile(String url, String name) throws IOException {
