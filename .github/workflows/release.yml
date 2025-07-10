@@ -82,7 +82,7 @@ jobs:
           release_name: ${{ steps.vars.outputs.version }}
           draft: false
           # Always prerelease if we're on dev, otherwise only for -SNAPSHOT
-          prerelease: ${{ github.ref == 'refs/heads/dev' || endsWith( steps.vars.outputs.version, '-SNAPSHOT' ) }}
+          prerelease: ${{ (github.ref == 'refs/heads/dev') || (endsWith(steps.vars.outputs.version, '-SNAPSHOT')) }}
 
       - name: Upload JAR
         uses: actions/upload-release-asset@v1
