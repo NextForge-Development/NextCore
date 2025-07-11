@@ -40,7 +40,7 @@ public class SimpleTextHologram extends AbstractHologram implements TextHologram
     @Override
     public void removeLine(int index) {
         if (index < 0 || index >= lines.size()) {
-            throw new IllegalArgumentException("Index out of bounds: " + index + ". Valid range: 0 to " + (lines.size() - 1));
+            throw new IllegalArgumentException("Index out of bounds: " + index + ". Valid range is [0, " + (lines.size() - 1) + "].");
         }
         lines.remove(index);
     }
