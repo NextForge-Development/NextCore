@@ -1,9 +1,10 @@
-package gg.nextforge.textblockitemdisplay;
+package gg.nextforge.command.builtin;
 
 import gg.nextforge.NextCorePlugin;
 import gg.nextforge.command.CommandContext;
 import gg.nextforge.command.CommandManager;
 import gg.nextforge.text.TextManager;
+import gg.nextforge.textblockitemdisplay.*;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -21,13 +22,13 @@ public class HologramCommand {
         this.plugin = plugin;
         this.manager = manager;
         this.text = plugin.getTextManager();
-        register();
+        if (plugin.getConfigFile().getBoolean("commands.hologram.enabled", true)) registerCommands();
     }
 
-    private void register() {
+    private void registerCommands() {
         CommandManager cm = plugin.getCommandManager();
         cm.command("hologram")
-                .permission("nextforge.command.hologram")
+                .permission(plugin.getConfigFile().getString("commands.hologram.permission", "nextforge.command.hologram"))
                 .description("Manage holograms")
                 .executor(this::handleHelp)
                 .subcommand("help", this::handleHelp)

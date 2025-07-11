@@ -31,12 +31,12 @@ public class NPCCommand {
         this.plugin = plugin;
         this.npcManager = npcManager;
         this.textManager = plugin.getTextManager();
-        registerCommands();
+        if (plugin.getConfigFile().getBoolean("commands.npc.enabled", true)) registerCommands();
     }
 
     private void registerCommands() {
         plugin.getCommandManager().command("npc")
-                .permission("nextforge.command.npc")
+                .permission(plugin.getConfigFile().getString("commands.npc.permission", "nextforge.command.npc"))
                 .description("Manage your npc's with ease.")
                 .aliases("npcs", "npcmanager")
                 .executor(this::handleHelp)

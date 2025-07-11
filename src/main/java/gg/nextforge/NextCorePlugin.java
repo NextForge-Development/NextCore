@@ -1,16 +1,15 @@
 package gg.nextforge;
 
+import gg.nextforge.command.builtin.HologramCommand;
 import gg.nextforge.command.builtin.NPCCommand;
 import gg.nextforge.command.builtin.NextCoreCommand;
 import gg.nextforge.config.ConfigFile;
-import gg.nextforge.config.ConfigManager;
 import gg.nextforge.console.ConsoleHeader;
 import gg.nextforge.plugin.NextForgePlugin;
 import gg.nextforge.scheduler.CoreScheduler;
 import gg.nextforge.scheduler.ScheduledTask;
 import gg.nextforge.updater.CoreAutoUpdater;
 import lombok.Getter;
-import org.checkerframework.checker.units.qual.N;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -48,7 +47,7 @@ public class NextCorePlugin extends NextForgePlugin {
 
         new NextCoreCommand(this);
         new NPCCommand(this, getNpcManager());
-        new gg.nextforge.textblockitemdisplay.HologramCommand(this, getHologramManager());
+        new HologramCommand(this, getHologramManager());
 
         ConsoleHeader.send(this);
 

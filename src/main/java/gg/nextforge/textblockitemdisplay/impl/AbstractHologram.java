@@ -11,6 +11,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public abstract class AbstractHologram implements Hologram {
     protected final String name;
     protected Location location;
+    protected boolean isTransient;
     private boolean spawned;
 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();

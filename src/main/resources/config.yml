@@ -3,3 +3,10 @@ updater:
   check_interval: 7200000 # Check for updates every 2 hours (in milliseconds)
   update_branch: 'master' # Branch to check for updates | Available branches: master, dev
   disable_update_message: false # Disable the update message in the console
+commands:
+  npc:
+    enabled: true # Enable the /npc command
+    permission: 'nextcore.command.npc' # Permission required to use the /npc command
+  hologram:
+    enabled: true # Enable the /hologram command
+    permission: 'nextcore.command.hologram' # Permission required to use the /hologram command
