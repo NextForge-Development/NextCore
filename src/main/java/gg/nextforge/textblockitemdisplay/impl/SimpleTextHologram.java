@@ -19,7 +19,7 @@ public class SimpleTextHologram extends AbstractHologram implements TextHologram
 
     @Override
     public List<String> getLines() {
-        return lines;
+        return Collections.unmodifiableList(new ArrayList<>(lines));
     }
 
     @Override
