@@ -47,6 +47,11 @@ public class HologramManager {
 
     /**
      * Creates a block hologram.
+     *
+     * @param name     hologram name
+     * @param location spawn location
+     * @param material block material
+     * @return created hologram
      */
     public BlockHologram createBlockHologram(String name, Location location, Material material) {
         BlockHologram holo = new SimpleBlockHologram(name, location, material);
