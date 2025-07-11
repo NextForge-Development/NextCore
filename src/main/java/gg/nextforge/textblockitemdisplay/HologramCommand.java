@@ -58,7 +58,12 @@ public class HologramCommand {
         }
         double range = 10;
         if (ctx.args().length > 0) {
-            range = Double.parseDouble(ctx.args()[0]);
+            try {
+                range = Double.parseDouble(ctx.args()[0]);
+            } catch (NumberFormatException e) {
+                text.send(ctx.sender(), "Invalid range. Please provide a valid number.");
+                return;
+            }
         }
         Location loc = player.getLocation();
         for (Hologram h : manager.getHolograms()) {
