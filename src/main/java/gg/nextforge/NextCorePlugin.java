@@ -48,6 +48,7 @@ public class NextCorePlugin extends NextForgePlugin {
 
         new NextCoreCommand(this);
         new NPCCommand(this, getNpcManager());
+        new gg.nextforge.textblockitemdisplay.HologramCommand(this, getHologramManager());
 
         ConsoleHeader.send(this);
 
