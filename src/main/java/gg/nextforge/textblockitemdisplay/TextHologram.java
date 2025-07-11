@@ -7,7 +7,7 @@ import java.util.List;
  */
 public interface TextHologram extends Hologram {
     /**
-     * @return mutable list of lines of text.
+     * @return immutable list of lines of text.
      */
     List<String> getLines();
 
