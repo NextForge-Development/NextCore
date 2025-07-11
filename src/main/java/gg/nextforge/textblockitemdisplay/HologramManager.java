@@ -33,6 +33,11 @@ public class HologramManager {
 
     /**
      * Creates an item hologram.
+     *
+     * @param name     hologram name
+     * @param location spawn location
+     * @param item     item to display
+     * @return created hologram
      */
     public ItemHologram createItemHologram(String name, Location location, ItemStack item) {
         ItemHologram holo = new SimpleItemHologram(name, location, item);
