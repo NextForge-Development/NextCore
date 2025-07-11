@@ -73,7 +73,10 @@ public class HologramManager {
     }
 
     /**
-     * Get a hologram by name.
+     * Retrieves a hologram by its name.
+     *
+     * @param name the name of the hologram to retrieve
+     * @return the hologram associated with the given name, or {@code null} if no such hologram exists
      */
     public Hologram get(String name) {
         return holograms.get(name.toLowerCase());
