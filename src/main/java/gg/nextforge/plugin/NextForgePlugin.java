@@ -7,6 +7,7 @@ import gg.nextforge.npc.NPCManager;
 import gg.nextforge.protocol.ProtocolManager;
 import gg.nextforge.scheduler.CoreScheduler;
 import gg.nextforge.text.TextManager;
+import gg.nextforge.textblockitemdisplay.HologramManager;
 import lombok.Getter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.Plugin;
@@ -25,6 +26,7 @@ public abstract class NextForgePlugin extends JavaPlugin {
     CommandManager commandManager;
     TextManager textManager;
     NPCManager npcManager;
+    HologramManager hologramManager;
     ProtocolManager protocolManager;
     Metrics metrics;
 
@@ -60,6 +62,7 @@ public abstract class NextForgePlugin extends JavaPlugin {
         this.commandManager = new CommandManager(this);
         this.textManager = new TextManager(this);
         this.npcManager = new NPCManager(this);
+        this.hologramManager = new HologramManager();
         this.protocolManager = new ProtocolManager(this);
 
         boolean isReload = getServer().getPluginManager().isPluginEnabled("NextForge");
