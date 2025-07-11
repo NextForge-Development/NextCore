@@ -24,6 +24,9 @@ public class SimpleTextHologram extends AbstractHologram implements TextHologram
 
     @Override
     public void setLine(int index, String text) {
+        if (index < 0 || index >= lines.size()) {
+            throw new IllegalArgumentException("Index out of bounds: " + index + ". Valid range is [0, " + (lines.size() - 1) + "].");
+        }
         lines.set(index, text);
     }
 
