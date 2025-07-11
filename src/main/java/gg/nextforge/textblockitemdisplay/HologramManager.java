@@ -60,7 +60,10 @@ public class HologramManager {
     }
 
     /**
-     * Remove a hologram by name.
+     * Removes a hologram by name.
+     *
+     * @param name the name of the hologram to remove
+     *             If no hologram exists with the given name, no action is taken.
      */
     public void remove(String name) {
         Hologram h = holograms.remove(name.toLowerCase());
