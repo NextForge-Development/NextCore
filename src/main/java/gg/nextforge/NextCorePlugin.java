@@ -5,11 +5,14 @@ import gg.nextforge.command.builtin.NPCCommand;
 import gg.nextforge.command.builtin.NextCoreCommand;
 import gg.nextforge.config.ConfigFile;
 import gg.nextforge.console.ConsoleHeader;
+import gg.nextforge.event.EventBus;
+import gg.nextforge.npc.NPCListener;
 import gg.nextforge.plugin.NextForgePlugin;
 import gg.nextforge.scheduler.CoreScheduler;
 import gg.nextforge.scheduler.ScheduledTask;
 import gg.nextforge.updater.CoreAutoUpdater;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -48,6 +51,10 @@ public class NextCorePlugin extends NextForgePlugin {
         new NextCoreCommand(this);
         new NPCCommand(this, getNpcManager());
         new HologramCommand(this, getHologramManager());
+
+        if (getConfigFile().getBoolean("commands.npc.enabled", true)) {
+            Bukkit.getPluginManager().registerEvents(new NPCListener(getNpcManager()), this);
+        }
 
         ConsoleHeader.send(this);
 

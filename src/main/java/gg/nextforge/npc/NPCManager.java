@@ -13,14 +13,14 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Manager class for handling NPCs (Non-Player Characters) in the NextForge framework.
@@ -199,18 +199,30 @@ public class NPCManager {
                 .scale(sec.getDouble("scale", 1.0))
                 .transientNPC(sec.getBoolean("transient", false))
                 .interactionCooldown(sec.getInt("cooldown", 0))
-                .turnToPlayer(sec.getBoolean("turnToPlayer"))
+                .turnToPlayer(sec.getBoolean("turnToPlayer", false))
                 .turnToPlayerDistance(sec.getDouble("turnToPlayerDistance", 3.0))
-                .attributes(new HashMap<>())
-                .actions(new ArrayList<>())
+                .actions(new EnumMap<>(NPC.ClickType.class))
                 .build();
-        ConfigurationSection attr = sec.getConfigurationSection("attributes");
-        if (attr != null) {
-            for (String key : attr.getKeys(false)) {
-                npc.getAttributes().put(key, attr.getString(key));
+
+        // Load actions
+        ConfigurationSection actionsSec = sec.getConfigurationSection("actions");
+        if (actionsSec != null) {
+            for (String clickKey : actionsSec.getKeys(false)) {
+                try {
+                    NPC.ClickType clickType = NPC.ClickType.valueOf(clickKey);
+                    List<String> entries = actionsSec.getStringList(clickKey);
+                    for (String entry : entries) {
+                        String[] parts = entry.split(":", 2);
+                        NPC.ActionType type = NPC.ActionType.valueOf(parts[0]);
+                        String cmd = parts.length > 1 ? parts[1] : "";
+                        npc.getActions().computeIfAbsent(clickType, k -> new ArrayList<>())
+                                .add(new NPC.CommandAction(type, cmd));
+                    }
+                } catch (IllegalArgumentException ignored) {}
             }
         }
-        npc.getActions().addAll(sec.getStringList("actions"));
+
+        // Load location
         ConfigurationSection loc = sec.getConfigurationSection("location");
         if (loc != null) {
             World w = Bukkit.getWorld(loc.getString("world", "world"));
@@ -260,10 +272,17 @@ public class NPCManager {
         sec.set("cooldown", npc.getInteractionCooldown());
         sec.set("turnToPlayer", npc.isTurnToPlayer());
         sec.set("turnToPlayerDistance", npc.getTurnToPlayerDistance());
-        for (String key : npc.getAttributes().keySet()) {
-            sec.set("attributes." + key, npc.getAttributes().get(key));
+
+        // Save actions
+        ConfigurationSection actionsSec = sec.createSection("actions");
+        for (Map.Entry<NPC.ClickType, List<NPC.CommandAction>> e : npc.getActions().entrySet()) {
+            List<String> list = e.getValue().stream()
+                    .map(a -> a.getActionType().name() + ":" + a.getCommand())
+                    .collect(Collectors.toList());
+            actionsSec.set(e.getKey().name(), list);
         }
-        sec.set("actions", npc.getActions());
+
+        // Save location
         if (npc.getLocation() != null) {
             ConfigurationSection loc = sec.createSection("location");
             loc.set("world", npc.getLocation().getWorld().getName());
@@ -273,5 +292,43 @@ public class NPCManager {
             loc.set("yaw", npc.getLocation().getYaw());
             loc.set("pitch", npc.getLocation().getPitch());
         }
+    }
+
+    public NPC getByEntity(Entity entity) {
+        if (entity == null || !npcs.containsKey(entity.getUniqueId().toString())) {
+            return null; // Return null if the entity is not an NPC
+        }
+        return npcs.get(entity.getUniqueId().toString()); // Get the NPC by its unique ID
+    }
+
+    public Player getNearestPlayer(NPC npc, double turnToPlayerDistance) {
+        if (npc.getLocation() == null) return null; // Ensure the NPC has a valid location
+        double closestDistance = turnToPlayerDistance;
+        Player closestPlayer = null;
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.getWorld().equals(npc.getLocation().getWorld())) {
+                double distance = player.getLocation().distance(npc.getLocation());
+                if (distance <= closestDistance) {
+                    closestDistance = distance;
+                    closestPlayer = player;
+                }
+            }
+        }
+        return closestPlayer; // Return the nearest player within the specified distance
+    }
+
+    public void rotateNpcHead(NPC npc, @NotNull Location location) {
+        if (npc.getEntity() == null || !(npc.getEntity() instanceof LivingEntity livingEntity)) {
+            return; // Ensure the NPC entity is valid and is a LivingEntity
+        }
+        Location npcLocation = npc.getLocation();
+        if (npcLocation == null) return; // Ensure the NPC has a valid location
+
+        double deltaX = location.getX() - npcLocation.getX();
+        double deltaZ = location.getZ() - npcLocation.getZ();
+        double yaw = Math.toDegrees(Math.atan2(deltaZ, deltaX)) - 90; // Calculate yaw based on the target location
+
+        livingEntity.setRotation((float) yaw, livingEntity.getLocation().getPitch()); // Set the NPC's head rotation
     }
 }
