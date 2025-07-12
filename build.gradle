@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'gg.nextforge'
-version = '1.0'
+version = '1.1-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -69,6 +69,12 @@ java {
     withSourcesJar()
 }
 
+javadoc {
+    options.encoding = 'UTF-8'
+    options.addStringOption('Xdoclint:none', '-quiet')
+    failOnError = false
+}
+
 tasks {
     compileJava {
         options.encoding = "UTF-8"
@@ -99,13 +105,21 @@ shadowJar {
 
 publishing {
     repositories {
-        mavenLocal()
+        maven {
+            name = 'NextForge'
+            url = uri("http://87.106.178.7:4231/releases")
+            allowInsecureProtocol = true
+            credentials {
+                username = "push_access"
+                password = project.findProperty("core_token") ?: System.getenv("CORE_TOKEN") ?: ""
+            }
+        }
     }
     publications {
         create("mavenJava", MavenPublication) {
             from components.java
             groupId = project.group
-            artifactId = 'nextforge'
+            artifactId = 'nextcore'
             version = project.version
 
             pom {
