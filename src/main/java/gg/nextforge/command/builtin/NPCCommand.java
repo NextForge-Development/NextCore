@@ -15,10 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class NPCCommand {
@@ -133,7 +130,7 @@ public class NPCCommand {
                 .turnToPlayer(false)
                 .turnToPlayerDistance(3.0)
                 .attributes(new java.util.HashMap<>())
-                .actions(new java.util.ArrayList<>())
+                .actions(new java.util.HashMap<>())
                 .location(loc)
                 .build();
         npcManager.register(npc);
@@ -170,7 +167,7 @@ public class NPCCommand {
                 .turnToPlayer(orig.isTurnToPlayer())
                 .turnToPlayerDistance(orig.getTurnToPlayerDistance())
                 .attributes(new java.util.HashMap<>(orig.getAttributes()))
-                .actions(new java.util.ArrayList<>(orig.getActions()))
+                .actions(new java.util.HashMap<>(orig.getActions()))
                 .location(orig.getLocation())
                 .build();
         npcManager.register(copy);
@@ -263,10 +260,12 @@ public class NPCCommand {
         if (npc.getActions().isEmpty()) {
             textManager.send(ctx.sender(), plugin.getMessagesFile().getString("commands.npc.info.actions.empty", "<gold>│</gold>  <gray>No actions defined.</gray>"));
         } else {
-            for (String action : npc.getActions()) {
-                textManager.send(ctx.sender(), plugin.getMessagesFile().getString("commands.npc.info.actions.line", "<gold>│</gold>  <gray>%action% (%trigger%)</gray>").replace("%action%", action)
-                        .replace("%trigger%", action.split(" ")[0])  // Assuming the trigger is the first word in the action string
-                );
+            for (NPC.ClickType action : npc.getActions().keySet()) {
+                textManager.send(ctx.sender(), plugin.getMessagesFile().getString("commands.npc.info.actions.line", "<gold>│</gold>  <gray>%action% (%trigger%)</gray>").replace("%action%", npc.getActions().get(action).stream()
+                        // Aus jedem CommandAction nur den eigentlichen Befehl ziehen
+                        .map(NPC.CommandAction::getCommand)
+                        .collect(Collectors.joining(", "))
+                        .replace("%trigger%", action.name())));
             }
         }
         textManager.send(ctx.sender(), plugin.getMessagesFile().getString("commands.npc.info.attributes.header", "<gold>│</gold>  <gray>Attributes:</gray>"));
@@ -843,54 +842,162 @@ public class NPCCommand {
     }
 
     private void handleAction(CommandContext ctx) {
-        if (ctx.args().length < 3) {
-            textManager.send(ctx.sender(), plugin.getMessagesFile().getString("commands.npc.action.usage", "%prefix% <red>Usage: /npc action (npc) add|remove|clear|list [params]</red>"));
+        String[] args = ctx.args();
+        // /npc action <npcId> add|remove|clear|list [...]
+        if (args.length < 2) {
+            textManager.send(ctx.sender(),
+                    plugin.getMessagesFile()
+                            .getString("commands.npc.action.usage",
+                                    "%prefix% <red>Usage: /npc action <npc> add|remove|clear|list [params]</red>"));
             return;
         }
-        String id = ctx.args()[0];
-        String sub = ctx.args()[1];
-        NPC npc = npcManager.getNpcs().get(id);
-        if (npc == null) { textManager.send(ctx.sender(), plugin.getMessagesFile().getString("commands.npc.action.not-found", "%prefix% <red>NPC '%name%' not found.</red>")); return; }
-        switch (sub.toLowerCase()) {
-            case "list":
+
+        String id  = args[0];
+        String sub = args[1].toLowerCase();
+        NPC npc    = npcManager.getNpcs().get(id);
+
+        if (npc == null) {
+            textManager.send(ctx.sender(),
+                    plugin.getMessagesFile()
+                            .getString("commands.npc.action.not-found",
+                                    "%prefix% <red>NPC '%name%' not found.</red>")
+                            .replace("%name%", id));
+            return;
+        }
+
+        switch (sub) {
+            case "list" -> {
                 if (npc.getActions().isEmpty()) {
-                    textManager.send(ctx.sender(), plugin.getMessagesFile().getString("commands.npc.action.list.empty", "%prefix% <yellow>NPC '%name%' has no actions.</yellow>").replace("%name%", id));
+                    textManager.send(ctx.sender(),
+                            plugin.getMessagesFile()
+                                    .getString("commands.npc.action.list.empty",
+                                            "%prefix% <yellow>NPC '%name%' has no actions.</yellow>")
+                                    .replace("%name%", id));
                 } else {
-                    for (String header : plugin.getMessagesFile().getStringList("commands.npc.action.list.header")) {
-                        header = header.replace("%name%", id);
-                        textManager.send(ctx.sender(), header);
+                    // Header
+                    for (String line : plugin.getMessagesFile().getStringList("commands.npc.action.list.header")) {
+                        textManager.send(ctx.sender(), line.replace("%name%", id));
                     }
-                    for (String action : npc.getActions()) {
-                        textManager.send(ctx.sender(), plugin.getMessagesFile().getString("commands.npc.action.list.line", "<gold>│</gold>  <gray>%action%</gray>").replace("%action%", action));
+                    // Jede Click-Type einzeln listen
+                    for (NPC.ClickType click : npc.getActions().keySet()) {
+                        String joined = npc.getActions()
+                                .get(click)
+                                .stream()
+                                .map(ca -> ca.getActionType().name() + ":" + ca.getCommand())
+                                .collect(Collectors.joining(", "));
+                        String template = plugin.getMessagesFile()
+                                .getString("commands.npc.action.list.line",
+                                        "<gold>│</gold>  <gray>%trigger% – %action%</gray>");
+                        String filled = template
+                                .replace("%trigger%", click.name())
+                                .replace("%action%", joined);
+                        textManager.send(ctx.sender(), filled);
                     }
-                    for (String footer : plugin.getMessagesFile().getStringList("commands.npc.action.list.footer")) {
-                        footer = footer.replace("%name%", id);
-                        textManager.send(ctx.sender(), footer);
+                    // Footer
+                    for (String line : plugin.getMessagesFile().getStringList("commands.npc.action.list.footer")) {
+                        textManager.send(ctx.sender(), line.replace("%name%", id));
                     }
                 }
-                break;
-            case "clear":
-                npcManager.modify(id, n -> { n.getActions().clear(); return n; });
+            }
+
+            case "clear" -> {
+                // Optional: /npc action <npc> clear [ClickType]
+                if (args.length == 3) {
+                    try {
+                        NPC.ClickType click = NPC.ClickType.valueOf(args[2].toUpperCase());
+                        npcManager.modify(id, n -> { n.getActions().remove(click); return n; });
+                    } catch (IllegalArgumentException ex) {
+                        textManager.send(ctx.sender(),
+                                "<red>Unknown click type: " + args[2] + "</red>");
+                        return;
+                    }
+                } else {
+                    // Ohne ClickType → alle löschen
+                    npcManager.modify(id, n -> { n.getActions().clear(); return n; });
+                }
                 npcManager.save();
-                textManager.send(ctx.sender(), plugin.getMessagesFile().getString("commands.npc.action.clear.success", "%prefix% <green>All actions cleared for NPC '%name%'.</green>").replace("%name%", id));
-                break;
-            case "add":
-                String action = ctx.args()[2];
-                npcManager.modify(id, n -> { n.getActions().add(action); return n; });
+                textManager.send(ctx.sender(),
+                        plugin.getMessagesFile()
+                                .getString("commands.npc.action.clear.success",
+                                        "%prefix% <green>Actions cleared for NPC '%name%'.</green>")
+                                .replace("%name%", id));
+            }
+
+            case "add" -> {
+                // /npc action <npc> add <ClickType> <ActionType> <command...>
+                if (args.length < 5) {
+                    textManager.send(ctx.sender(),
+                            "<red>Usage: /npc action " + id + " add <any_click|left_click|right_click> <player_command|console_command> <command...></red>");
+                    return;
+                }
+                NPC.ClickType click;
+                NPC.ActionType type;
+                try {
+                    click = NPC.ClickType.valueOf(args[2].toUpperCase());
+                    type  = NPC.ActionType.valueOf(args[3].toUpperCase());
+                } catch (IllegalArgumentException ex) {
+                    textManager.send(ctx.sender(),
+                            "<red>Invalid click- or action-type!</red>");
+                    return;
+                }
+                String command = String.join(" ", Arrays.copyOfRange(args, 4, args.length));
+                npcManager.modify(id, n -> {
+                    n.getActions()
+                            .computeIfAbsent(click, k -> new ArrayList<>())
+                            .add(new NPC.CommandAction(type, command));
+                    return n;
+                });
                 npcManager.save();
-                textManager.send(ctx.sender(), plugin.getMessagesFile().getString("commands.npc.action.add.success", "%prefix% <green>Action '%action%' added to NPC '%name%'.</green>").replace("%action%", action).replace("%name%", id));
-                break;
-            case "remove":
-                String rem = ctx.args()[2];
-                npcManager.modify(id, n -> { n.getActions().remove(rem); return n; });
-                npcManager.save();
-                textManager.send(ctx.sender(), plugin.getMessagesFile().getString("commands.npc.action.remove.success", "%prefix% <green>Action '%action%' removed from NPC '%name%'.</green>").replace("%action%", rem).replace("%name%", id));
-                break;
-            default:
-                textManager.send(ctx.sender(), plugin.getMessagesFile().getString("commands.npc.action.usage", "%prefix% <red>Usage: /npc action (npc) add|remove|clear|list [params]</red>"));
-                break;
+                textManager.send(ctx.sender(),
+                        plugin.getMessagesFile()
+                                .getString("commands.npc.action.add.success",
+                                        "%prefix% <green>Action '%action%' added to NPC '%name%'.</green>")
+                                .replace("%action%", type.name() + ":" + command)
+                                .replace("%name%", id));
+            }
+
+            case "remove" -> {
+                // /npc action <npc> remove <ClickType> <index>
+                if (args.length != 4) {
+                    textManager.send(ctx.sender(),
+                            "<red>Usage: /npc action " + id + " remove <any_click|left_click|right_click> <index></red>");
+                    return;
+                }
+                NPC.ClickType click;
+                int index;
+                try {
+                    click = NPC.ClickType.valueOf(args[2].toUpperCase());
+                    index = Integer.parseInt(args[3]);
+                } catch (IllegalArgumentException ex) {
+                    textManager.send(ctx.sender(),
+                            "<red>Invalid click-type or index!</red>");
+                    return;
+                }
+                final boolean removed = npcManager.getNpcs()
+                        .get(id)
+                        .removeAction(click, index);
+                if (removed) {
+                    npcManager.save();
+                    textManager.send(ctx.sender(),
+                            plugin.getMessagesFile()
+                                    .getString("commands.npc.action.remove.success",
+                                            "%prefix% <green>Action removed from NPC '%name%'.</green>")
+                                    .replace("%name%", id));
+                } else {
+                    textManager.send(ctx.sender(),
+                            "<red>No action at index " + index + " for " + click.name() + "!</red>");
+                }
+            }
+
+            default -> {
+                textManager.send(ctx.sender(),
+                        plugin.getMessagesFile()
+                                .getString("commands.npc.action.usage",
+                                        "%prefix% <red>Usage: /npc action <npc> add|remove|clear|list [params]</red>"));
+            }
         }
     }
+
 
     private void handleInteractionCooldown(CommandContext ctx) {
         if (ctx.args().length < 2) {
