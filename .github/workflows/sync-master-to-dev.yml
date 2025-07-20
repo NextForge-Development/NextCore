@@ -80,5 +80,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: pr.data.number,
-              reviewers: ['whynotmax']  // <- Passe hier an
+              reviewers: []
             });
