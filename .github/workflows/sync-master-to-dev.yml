@@ -74,11 +74,3 @@ jobs:
               body: 'Automatic merge from **master** into **dev** failed due to conflicts. Please resolve and merge.',
               draft: false
             });
-
-            // 2) Request reviews
-            await github.rest.pulls.requestReviewers({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pr.data.number,
-              reviewers: []
-            });
