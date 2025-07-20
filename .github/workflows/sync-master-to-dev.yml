@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write    # ensure GITHUB_TOKEN can push code
+  pull-requests: write # allow creating PRs
 
 jobs:
   sync-to-dev:
