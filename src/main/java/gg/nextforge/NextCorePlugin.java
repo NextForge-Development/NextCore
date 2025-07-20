@@ -1,16 +1,13 @@
 package gg.nextforge;
 
-import gg.nextforge.command.builtin.NPCCommand;
 import gg.nextforge.command.builtin.NextCoreCommand;
 import gg.nextforge.config.ConfigFile;
-import gg.nextforge.config.ConfigManager;
 import gg.nextforge.console.ConsoleHeader;
 import gg.nextforge.plugin.NextForgePlugin;
 import gg.nextforge.scheduler.CoreScheduler;
 import gg.nextforge.scheduler.ScheduledTask;
 import gg.nextforge.updater.CoreAutoUpdater;
 import lombok.Getter;
-import org.checkerframework.checker.units.qual.N;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -18,8 +15,11 @@ import java.util.UUID;
 @Getter
 public class NextCorePlugin extends NextForgePlugin {
 
+    long serverUptime;
+    boolean debugMode;
     ConfigFile configFile;
     ConfigFile messagesFile;
+    CoreAutoUpdater updater;
     ScheduledTask updateCheckTask;
 
     @Override
@@ -39,15 +39,20 @@ public class NextCorePlugin extends NextForgePlugin {
             return;
         }
 
+        this.serverUptime = System.currentTimeMillis();
+
         configFile = getConfigManager().loadConfig("config.yml");
+        if (configFile.getBoolean("debug_mode", false)) {
+            this.debugMode = true;
+            getSLF4JLogger().info("[NextForge] Debug mode is enabled. This will log additional information to the console.");
+        } else {
+            this.debugMode = false;
+        }
         messagesFile = getConfigManager().loadConfig("messages.yml");
 
-        getTextManager().placeholder("prefix", p -> {
-            return messagesFile.getString("general.prefix", "<dark_gray>[<gradient:aqua:dark_aqua>ɴᴇxᴛᴄᴏʀᴇ<dark_gray>]</gradient></dark_gray>");
-        });
+        getTextManager().placeholder("prefix", _ -> messagesFile.getString("general.prefix", "<dark_gray>[<gradient:aqua:dark_aqua>ɴᴇxᴛᴄᴏʀᴇ<dark_gray>]</gradient></dark_gray>"));
 
         new NextCoreCommand(this);
-        new NPCCommand(this, getNpcManager());
 
         ConsoleHeader.send(this);
 
@@ -55,7 +60,7 @@ public class NextCorePlugin extends NextForgePlugin {
 
         getSLF4JLogger().info("[NextForge] Initializing {} v{}...", getName(), getPluginVersion());
 
-        CoreAutoUpdater updater = new CoreAutoUpdater(getDataFolder().getParentFile());
+        this.updater = new CoreAutoUpdater(getDataFolder().getParentFile());
 
         int checkMillis = configFile.getInt("updater.check_interval", 7200000);
         int checkTicks = checkMillis / 50;

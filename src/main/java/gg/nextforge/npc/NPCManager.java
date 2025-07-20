@@ -82,16 +82,6 @@ public class NPCManager {
     }
 
     /**
-     * Registers a new NPC using a builder.
-     *
-     * @param builder The NPC builder instance.
-     */
-    public void register(NPC.NPCBuilder builder) {
-        NPC npc = builder.build();
-        register(npc);
-    }
-
-    /**
      * Modifies an existing NPC using a provided modifier function.
      *
      * @param id       The ID of the NPC to modify.

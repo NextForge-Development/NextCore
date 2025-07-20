@@ -3,3 +3,30 @@ updater:
   check_interval: 7200000 # Check for updates every 2 hours (in milliseconds)
   update_branch: 'master' # Branch to check for updates | Available branches: master, dev
   disable_update_message: false # Disable the update message in the console
+debug:
+  enabled: false # Enable debug mode - This will log additional information to the console and saves it to an option below
+  log:
+    file:
+      enabled: true # Enable logging to a file
+      file_path: 'plugins/NextCore/debug_logs/debug.log' # Path to the debug log file
+    paste-service:
+      enabled: true # Enable logging to a paste service
+      service_url: 'https://paste.example.com/api' # URL of the paste service
+      max_size: 1048576 # Maximum size of the log file to be uploaded (in bytes) - 1 MB default
+commands:
+    nextcore:
+        permission: 'nextcore.command' # Permission required to use the /nextcore command
+        aliases: # Aliases for the /nextcore command
+        - 'nc'
+        - 'ncore'
+        subcommands: # Subcommands for the /nextcore command
+        reload:
+            permission: 'nextcore.command.reload' # Permission for the reload subcommand
+        version:
+            permission: 'nextcore.command.version' # Permission for the version subcommand
+        debug:
+            permission: 'nextcore.command.debug' # Permission for the debug subcommand
+        update:
+            permission: 'nextcore.command.update' # Permission for the update subcommand
+        info:
+            permission: 'nextcore.command.info' # Permission for the info subcommand

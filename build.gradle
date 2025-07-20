@@ -1,15 +1,31 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id "io.papermc.paperweight.userdev" version "2.0.0-beta.17"
+    id "io.papermc.paperweight.userdev" version "2.0.0-beta.18"
     id "com.gradleup.shadow" version "8.3.8"
+    id 'com.gorylenko.gradle-git-properties' version '2.4.1'
 }
 
 group = 'gg.nextforge'
-version = '1.0'
+version = '2.0'
 
 repositories {
     mavenCentral()
+    mavenLocal()
+}
+
+gitProperties {
+    failOnNoGitDirectory = false            // kein Fehler, falls kein .git da ist
+    dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"   // optional: Timestamp-Format
+    keys = ['git.commit.id', 'git.branch']  // nur die Keys, die du brauchst
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDir "${buildDir}/generated/gitProperties"
+        }
+    }
 }
 
 dependencies {
@@ -28,9 +44,11 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'io.papermc.paperweight.userdev'
     apply plugin: 'com.gradleup.shadow'
+    apply plugin: 'com.gorylenko.gradle-git-properties'
 
     repositories {
         mavenCentral()
+        mavenLocal()
     }
 
     dependencies {
@@ -58,13 +76,19 @@ subprojects {
 
 java {
     // Use Java 21
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_23
+    targetCompatibility = JavaVersion.VERSION_23
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(23))
     }
     withJavadocJar()
     withSourcesJar()
+}
+
+javadoc {
+    options.encoding = 'UTF-8'
+    failOnError = false
+    options.addStringOption('Xdoclint:none', '-quiet')
 }
 
 tasks {
