@@ -1,5 +1,6 @@
 name: Sync master → dev
 
+
 on:
   push:
     branches:
@@ -61,7 +62,7 @@ jobs:
         if: steps.merge.outcome == 'failure'
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PAT_PR }}
           script: |
             // 1) Create the PR from master → dev
             const pr = await github.rest.pulls.create({
