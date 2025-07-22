@@ -37,6 +37,12 @@ dependencies {
     implementation "org.mozilla:rhino:1.7.14"
     implementation "com.google.code.gson:gson:2.10.1"
     implementation "org.bstats:bstats-bukkit:3.0.2"
+
+    implementation 'org.redisson:redisson:3.50.0'
+    implementation 'com.mysql:mysql-connector-j:9.3.0'
+    implementation 'org.xerial:sqlite-jdbc:3.50.3.0'
+    implementation 'com.h2database:h2:2.3.232'
+    implementation 'org.mongodb:mongodb-driver-sync:5.5.1'
 }
 
 subprojects {
