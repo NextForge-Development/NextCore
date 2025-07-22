@@ -56,7 +56,7 @@ public abstract class NextForgePlugin extends JavaPlugin {
         this.metrics = new Metrics(this, getMetricsId());
 
         this.configManager = new ConfigManager(this);
-        this.scheduler = new CoreScheduler(this);
+        this.scheduler = new CoreScheduler();
         this.commandManager = new CommandManager(this);
         this.textManager = new TextManager(this);
         this.npcManager = new NPCManager(this);
