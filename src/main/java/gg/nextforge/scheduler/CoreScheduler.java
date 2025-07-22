@@ -1,5 +1,6 @@
 package gg.nextforge.scheduler;
 
+import gg.nextforge.scheduler.advanced.AdvancedTaskScheduler;
 import lombok.Getter;
 
 import java.util.Map;
@@ -13,6 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CoreScheduler {
 
     private static CoreScheduler instance;
+    @Getter
+    private static AdvancedTaskScheduler advancedScheduler;
 
     @Getter
     private static final Map<Integer, ScheduledTask> activeTasks = new ConcurrentHashMap<>();
@@ -22,6 +25,7 @@ public class CoreScheduler {
 
     public CoreScheduler() {
         this.executorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
+        this.advancedScheduler = new AdvancedTaskScheduler();
         instance = this;
     }
 
@@ -91,4 +95,5 @@ public class CoreScheduler {
     private long ticksToMillis(long ticks) {
         return ticks * 50L; // 20 ticks = 1 second
     }
+
 }
