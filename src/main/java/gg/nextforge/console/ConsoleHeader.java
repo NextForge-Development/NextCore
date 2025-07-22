@@ -11,12 +11,12 @@ public class ConsoleHeader {
         String HEADER_LINE_4 = "██║╚██╗██║██╔══╝   ██╔██╗    ██║   ██╔══╝  ██║   ██║██╔══██╗██║   ██║██╔══╝  ";
         String HEADER_LINE_5 = "██║ ╚████║███████╗██╔╝ ██╗   ██║   ██║     ╚██████╔╝██║  ██║╚██████╔╝███████╗";
         String HEADER_LINE_6 = "╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝      ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝";
-        nextForgePlugin.getSLF4JLogger().info(" {}", HEADER_LINE_1);
-        nextForgePlugin.getSLF4JLogger().info(" {}", HEADER_LINE_2);
-        nextForgePlugin.getSLF4JLogger().info(" {}", HEADER_LINE_3);
-        nextForgePlugin.getSLF4JLogger().info(" {}", HEADER_LINE_4);
-        nextForgePlugin.getSLF4JLogger().info(" {}", HEADER_LINE_5);
-        nextForgePlugin.getSLF4JLogger().info(" {}", HEADER_LINE_6);
+        nextForgePlugin.getSLF4JLogger().info("{}", HEADER_LINE_1);
+        nextForgePlugin.getSLF4JLogger().info("{}", HEADER_LINE_2);
+        nextForgePlugin.getSLF4JLogger().info("{}", HEADER_LINE_3);
+        nextForgePlugin.getSLF4JLogger().info("{}", HEADER_LINE_4);
+        nextForgePlugin.getSLF4JLogger().info("{}", HEADER_LINE_5);
+        nextForgePlugin.getSLF4JLogger().info("{}", HEADER_LINE_6);
     }
 
 }
