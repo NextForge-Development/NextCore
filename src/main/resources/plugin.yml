@@ -6,4 +6,5 @@ api-version: 1.19
 depend:
   - PlaceholderAPI
 softdepend:
+  - Vault
   - LuckPerms
