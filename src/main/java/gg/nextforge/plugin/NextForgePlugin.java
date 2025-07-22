@@ -5,14 +5,17 @@ import gg.nextforge.command.CommandManager;
 import gg.nextforge.config.ConfigManager;
 import gg.nextforge.database.DatabaseManager;
 import gg.nextforge.npc.NPCManager;
+import gg.nextforge.performance.listener.TickListener;
 import gg.nextforge.protocol.ProtocolManager;
 import gg.nextforge.scheduler.CoreScheduler;
 import gg.nextforge.text.TextManager;
 import gg.nextforge.ui.UIManager;
 import lombok.Getter;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.UUID;
 
@@ -68,6 +71,8 @@ public abstract class NextForgePlugin extends JavaPlugin {
         this.uiManager = new UIManager();
 
         this.uiManager.init(this);
+
+        Bukkit.getPluginManager().registerEvents(new TickListener(this), this);
 
         boolean isReload = getServer().getPluginManager().isPluginEnabled("NextForge");
         enable(isReload);
