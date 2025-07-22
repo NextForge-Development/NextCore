@@ -1,5 +1,7 @@
 package gg.nextforge.event;
 
+import gg.nextforge.scheduler.CoreScheduler;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
@@ -12,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -93,6 +97,73 @@ public class EventBus {
                 handler.accept(e);
             }
         }, EventPriority.NORMAL, false);
+    }
+
+    /**
+     * Registers an event handler that will be executed a specified number of times.
+     * After the maximum number of executions, the handler will automatically unregister itself.
+     *
+     * @param eventClass      The class of the event to listen for.
+     * @param handler         The lambda function to handle the event.
+     * @param maxExecutions   The maximum number of times the handler should be executed.
+     * @param <T>             The type of the event.
+     * @return An EventSubscription object for managing the handler.
+     */
+    public static <T extends Event> EventSubscription onTimes(Class<T> eventClass, Consumer<T> handler, int maxExecutions) {
+        AtomicInteger counter = new AtomicInteger();
+        EventSubscription[] sub = new EventSubscription[1]; // dirty, but functional
+        sub[0] = on(eventClass, e -> {
+            handler.accept(e);
+            if (counter.incrementAndGet() >= maxExecutions) {
+                sub[0].unregister();
+            }
+        });
+        return sub[0];
+    }
+
+    /**
+     * Registers an event handler that will be executed after a specified timeout.
+     * The handler will automatically unregister itself after the timeout.
+     *
+     * @param eventClass The class of the event to listen for.
+     * @param handler    The lambda function to handle the event.
+     * @param duration   The duration to wait before executing the handler.
+     * @param unit       The time unit of the duration.
+     * @param <T>        The type of the event.
+     * @return An EventSubscription object for managing the handler.
+     */
+    public static <T extends Event> EventSubscription onTimeout(Class<T> eventClass, Consumer<T> handler, long duration, TimeUnit unit) {
+        EventSubscription subscription = on(eventClass, handler);
+        CoreScheduler.runLater(subscription::unregister, unit.toMillis(duration) / 50); // Convert ms to ticks
+        return subscription;
+    }
+
+    /**
+     * Registers an event handler that will be executed a specified number of times
+     * within a timeout period. After the maximum number of executions or the timeout,
+     * the handler will automatically unregister itself.
+     *
+     * @param eventClass      The class of the event to listen for.
+     * @param handler         The lambda function to handle the event.
+     * @param maxExecutions   The maximum number of times the handler should be executed.
+     * @param timeout         The timeout duration after which the handler will be unregistered.
+     * @param unit            The time unit of the timeout duration.
+     * @param <T>             The type of the event.
+     * @return An EventSubscription object for managing the handler.
+     */
+    public static <T extends Event> EventSubscription onLimit(Class<T> eventClass, Consumer<T> handler, int maxExecutions, long timeout, TimeUnit unit) {
+        AtomicInteger counter = new AtomicInteger();
+        EventSubscription[] sub = new EventSubscription[1];
+        sub[0] = on(eventClass, e -> {
+            handler.accept(e);
+            if (counter.incrementAndGet() >= maxExecutions) {
+                sub[0].unregister();
+            }
+        });
+        CoreScheduler.runLater(() -> {
+            if (!sub[0].isCancelled()) sub[0].unregister();
+        }, unit.toMillis(timeout) / 50);
+        return sub[0];
     }
 
     /**
@@ -210,6 +281,7 @@ public class EventBus {
         private final Class<? extends Event> eventClass;
         private final RegisteredHandler handler;
         private final Listener listener;
+        @Getter
         private boolean cancelled = false;
 
         EventSubscription(Class<? extends Event> eventClass, RegisteredHandler handler, Listener listener) {
