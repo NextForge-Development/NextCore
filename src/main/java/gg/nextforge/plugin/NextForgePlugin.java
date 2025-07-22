@@ -3,10 +3,12 @@ package gg.nextforge.plugin;
 import gg.nextforge.NextCorePlugin;
 import gg.nextforge.command.CommandManager;
 import gg.nextforge.config.ConfigManager;
+import gg.nextforge.database.DatabaseManager;
 import gg.nextforge.npc.NPCManager;
 import gg.nextforge.protocol.ProtocolManager;
 import gg.nextforge.scheduler.CoreScheduler;
 import gg.nextforge.text.TextManager;
+import gg.nextforge.ui.UIManager;
 import lombok.Getter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.Plugin;
@@ -26,6 +28,8 @@ public abstract class NextForgePlugin extends JavaPlugin {
     TextManager textManager;
     NPCManager npcManager;
     ProtocolManager protocolManager;
+    UIManager uiManager;
+    DatabaseManager databaseManager;
     Metrics metrics;
 
     public abstract int getMetricsId();
@@ -61,6 +65,9 @@ public abstract class NextForgePlugin extends JavaPlugin {
         this.textManager = new TextManager(this);
         this.npcManager = new NPCManager(this);
         this.protocolManager = new ProtocolManager(this);
+        this.uiManager = new UIManager();
+
+        this.uiManager.init(this);
 
         boolean isReload = getServer().getPluginManager().isPluginEnabled("NextForge");
         enable(isReload);
@@ -68,6 +75,12 @@ public abstract class NextForgePlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (instance != this) {
+            getLogger().warning("Plugin instance mismatch! This should not happen.");
+            return;
+        }
+        instance = null;
+        this.uiManager.shutdown();
         disable();
     }
 }
