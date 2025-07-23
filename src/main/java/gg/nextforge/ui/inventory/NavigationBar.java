@@ -1,5 +1,6 @@
 package gg.nextforge.ui.inventory;
 
+import gg.nextforge.ui.action.ClickAction;
 import gg.nextforge.ui.component.UIButton;
 import gg.nextforge.ui.component.UIComponent;
 import org.bukkit.Material;
@@ -20,17 +21,17 @@ public class NavigationBar {
     private final Map<Integer, UIComponent> buttons = new HashMap<>();
 
     public NavigationBar backButton(int slot, BiConsumer<Player, ClickType> handler) {
-        buttons.put(slot, new UIButton(() -> createItem(Material.ARROW, "§cBack"), handler));
+        buttons.put(slot, new UIButton(() -> createItem(Material.ARROW, "§cBack"), handler::accept));
         return this;
     }
 
     public NavigationBar nextButton(int slot, BiConsumer<Player, ClickType> handler) {
-        buttons.put(slot, new UIButton(() -> createItem(Material.ARROW, "§aNext"), handler));
+        buttons.put(slot, new UIButton(() -> createItem(Material.ARROW, "§aNext"), handler::accept));
         return this;
     }
 
     public NavigationBar closeButton(int slot, BiConsumer<Player, ClickType> handler) {
-        buttons.put(slot, new UIButton(() -> createItem(Material.BARRIER, "§4Close"), handler));
+        buttons.put(slot, new UIButton(() -> createItem(Material.BARRIER, "§4Close"), handler::accept));
         return this;
     }
 
