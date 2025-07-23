@@ -50,7 +50,7 @@ public class NextCorePlugin extends NextForgePlugin {
         }
         messagesFile = getConfigManager().loadConfig("messages.yml");
 
-        getTextManager().placeholder("prefix", _ -> messagesFile.getString("general.prefix", "<dark_gray>[<gradient:aqua:dark_aqua>ɴᴇxᴛᴄᴏʀᴇ<dark_gray>]</gradient></dark_gray>"));
+        getTextManager().placeholder("prefix", unused -> messagesFile.getString("general.prefix", "<dark_gray>[<gradient:aqua:dark_aqua>ɴᴇxᴛᴄᴏʀᴇ<dark_gray>]</gradient></dark_gray>"));
 
         new NextCoreCommand(this);
 

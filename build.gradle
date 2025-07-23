@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id "io.papermc.paperweight.userdev" version "2.0.0-beta.18"
+    id "io.papermc.paperweight.userdev" version "2.0.0-beta.17"
     id "com.gradleup.shadow" version "8.3.8"
     id 'com.gorylenko.gradle-git-properties' version '2.4.1'
 }
@@ -37,6 +37,10 @@ repositories {
     }
 }
 
+configurations {
+    delombok
+}
+
 dependencies {
     paperweight.paperDevBundle("1.19.1-R0.1-SNAPSHOT")
 
@@ -58,6 +62,20 @@ dependencies {
     compileOnly 'me.clip:placeholderapi:2.11.6'
     compileOnly "com.github.MilkBowl:VaultAPI:1.7"
     compileOnly 'net.luckperms:api:5.4'
+
+    delombok 'org.projectlombok:lombok:1.18.38'
+}
+
+tasks.register('delombok', JavaExec) {
+    main = 'lombok.launch.Main'
+    classpath = configurations.delombok
+    args = ['delombok', 'src/main/java', '-d', "$buildDir/delombok"]
+}
+
+javadoc {
+    dependsOn delombok
+    source = fileTree("$buildDir/delombok")
+    classpath = sourceSets.main.compileClasspath
 }
 
 subprojects {
@@ -97,10 +115,10 @@ subprojects {
 
 java {
     // Use Java 21
-    sourceCompatibility = JavaVersion.VERSION_23
-    targetCompatibility = JavaVersion.VERSION_23
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(23))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
     withJavadocJar()
     withSourcesJar()
