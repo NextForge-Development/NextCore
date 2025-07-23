@@ -3,14 +3,19 @@ package gg.nextforge.plugin;
 import gg.nextforge.NextCorePlugin;
 import gg.nextforge.command.CommandManager;
 import gg.nextforge.config.ConfigManager;
+import gg.nextforge.database.DatabaseManager;
 import gg.nextforge.npc.NPCManager;
+import gg.nextforge.performance.listener.TickListener;
 import gg.nextforge.protocol.ProtocolManager;
 import gg.nextforge.scheduler.CoreScheduler;
 import gg.nextforge.text.TextManager;
+import gg.nextforge.ui.UIManager;
 import lombok.Getter;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.UUID;
 
@@ -26,6 +31,8 @@ public abstract class NextForgePlugin extends JavaPlugin {
     TextManager textManager;
     NPCManager npcManager;
     ProtocolManager protocolManager;
+    UIManager uiManager;
+    DatabaseManager databaseManager;
     Metrics metrics;
 
     public abstract int getMetricsId();
@@ -56,11 +63,16 @@ public abstract class NextForgePlugin extends JavaPlugin {
         this.metrics = new Metrics(this, getMetricsId());
 
         this.configManager = new ConfigManager(this);
-        this.scheduler = new CoreScheduler(this);
+        this.scheduler = new CoreScheduler();
         this.commandManager = new CommandManager(this);
         this.textManager = new TextManager(this);
         this.npcManager = new NPCManager(this);
         this.protocolManager = new ProtocolManager(this);
+        this.uiManager = new UIManager();
+
+        this.uiManager.init(this);
+
+        Bukkit.getPluginManager().registerEvents(new TickListener(this), this);
 
         boolean isReload = getServer().getPluginManager().isPluginEnabled("NextForge");
         enable(isReload);
@@ -68,6 +80,12 @@ public abstract class NextForgePlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (instance != this) {
+            getLogger().warning("Plugin instance mismatch! This should not happen.");
+            return;
+        }
+        instance = null;
+        this.uiManager.shutdown();
         disable();
     }
 }
