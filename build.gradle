@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'gg.nextforge'
-version = '2.3'
+version = '3.0-BETA'
 
 repositories {
     mavenCentral()
