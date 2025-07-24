@@ -9,7 +9,6 @@ import gg.nextforge.performance.listener.TickListener;
 import gg.nextforge.protocol.ProtocolManager;
 import gg.nextforge.scheduler.CoreScheduler;
 import gg.nextforge.text.TextManager;
-import gg.nextforge.ui.UIManager;
 import lombok.Getter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -31,7 +30,6 @@ public abstract class NextForgePlugin extends JavaPlugin {
     TextManager textManager;
     NPCManager npcManager;
     ProtocolManager protocolManager;
-    UIManager uiManager;
     DatabaseManager databaseManager;
     Metrics metrics;
 
@@ -68,9 +66,6 @@ public abstract class NextForgePlugin extends JavaPlugin {
         this.textManager = new TextManager(this);
         this.npcManager = new NPCManager(this);
         this.protocolManager = new ProtocolManager(this);
-        this.uiManager = new UIManager();
-
-        this.uiManager.init(this);
 
         Bukkit.getPluginManager().registerEvents(new TickListener(this), this);
 
@@ -85,7 +80,6 @@ public abstract class NextForgePlugin extends JavaPlugin {
             return;
         }
         instance = null;
-        this.uiManager.shutdown();
         disable();
     }
 }
