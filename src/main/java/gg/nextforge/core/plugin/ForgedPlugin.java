@@ -2,6 +2,7 @@
 package gg.nextforge.core.plugin;
 
 import dev.mzcy.LicensedPlugin;
+import gg.nextforge.core.events.EventBus;
 import gg.nextforge.core.plugin.annotation.NextForgePlugin;
 import gg.nextforge.core.plugin.dependency.DependencyManager;
 import gg.nextforge.core.plugin.dependency.model.DependencyArtifact;
@@ -13,14 +14,24 @@ import gg.nextforge.core.i18n.I18n;
 import gg.nextforge.core.i18n.YamlMessageSource;
 import gg.nextforge.core.i18n.LocaleResolver;
 import gg.nextforge.core.i18n.DefaultLocaleResolver;
+import gg.nextforge.core.scheduler.NextForgeScheduler;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.experimental.Accessors;
+import lombok.experimental.FieldDefaults;
 
 import java.nio.file.Path;
 import java.util.*;
 
+@Getter
+@Accessors(fluent = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public abstract class ForgedPlugin extends LicensedPlugin {
 
     private DependencyManager depManager;
     private ServiceRegistry services;
+    private NextForgeScheduler scheduler;
+    private EventBus eventBus;
 
     @Override
     public void enablePlugin() {
@@ -72,6 +83,11 @@ public abstract class ForgedPlugin extends LicensedPlugin {
 
         Injector.wire(this, services);
 
+        scheduler = new NextForgeScheduler(Math.min(2, Runtime.getRuntime().availableProcessors() / 2), 10);
+        scheduler.bindMainThread();
+
+        eventBus = new EventBus();
+
         // 4) Pre-enable hook (initialize services etc.)
         beforeEnable(services);
 
@@ -83,6 +99,7 @@ public abstract class ForgedPlugin extends LicensedPlugin {
     public void disablePlugin() {
         try {
             disable();
+            scheduler.close();
             afterDisable();
         } finally {
             try { if (depManager != null) depManager.close(); } catch (Exception ignored) {}
