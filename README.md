@@ -93,6 +93,9 @@ For our very own sync/async task scheduling system, see:<br>
 <br>
 For the event bus system, including how to register and listen to events, see:<br>
 📄 [Event Bus Documentation](.github/docs/Event-Bus.md)
+<br>
+For the command system, including how to register commands and handle arguments, see:<br>
+📄 [Command System Documentation](.github/docs/Command-Framework.md)
 
 ---
 
