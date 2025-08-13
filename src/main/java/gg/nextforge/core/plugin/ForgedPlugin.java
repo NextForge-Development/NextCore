@@ -1,6 +1,8 @@
 // src/main/java/gg/nextforge/core/plugin/ForgedPlugin.java
 package gg.nextforge.core.plugin;
 
+import com.destroystokyo.paper.event.server.ServerTickEndEvent;
+import com.destroystokyo.paper.event.server.ServerTickStartEvent;
 import dev.mzcy.LicensedPlugin;
 import gg.nextforge.core.events.EventBus;
 import gg.nextforge.core.plugin.annotation.NextForgePlugin;
@@ -19,6 +21,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
+import org.bukkit.event.EventPriority;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -87,6 +90,7 @@ public abstract class ForgedPlugin extends LicensedPlugin {
         scheduler.bindMainThread();
 
         eventBus = new EventBus();
+        eventBus.subscribe(ServerTickStartEvent.class, EventPriority.HIGHEST, e -> scheduler.tick());
 
         // 4) Pre-enable hook (initialize services etc.)
         beforeEnable(services);

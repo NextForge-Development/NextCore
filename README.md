@@ -88,6 +88,12 @@ For the Dependency Injection Framework, including how to manage dependencies, an
 For the language support and i18n system, including how to use the `I18n` service, see:  
 📄 [I18n Documentation](.github/docs/I18n.md)
 
+For our very own sync/async task scheduling system, see:
+📄 [Task Scheduling Documentation](.github/docs/Scheduler.md)
+
+For the event bus system, including how to register and listen to events, see:
+📄 [Event Bus Documentation](.github/docs/Event-Bus.md)
+
 ---
 
 ## License
