@@ -108,7 +108,7 @@ var storage = new MySQLStorage<>(
     "password"
 );
 storage.init();
-
+-
 var user = new User();
 user.setUniqueId(UUID.randomUUID());
 user.setUsername("soldier");
@@ -124,6 +124,9 @@ storage.save(user);
 
 For a detailed guide to the Data Package, including all annotations, backends, schema generation, and index handling, see:  
 📄 [Data Package Documentation](.github/docs/Data-Package.md)
+
+For the Dependency Injection Framework, including how to manage dependencies, and use them, see:
+📄 [Dependency Injection Documentation](.github/docs/Dependency-Injection.md)
 
 ---
 
