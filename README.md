@@ -92,4 +92,4 @@ For the language support and i18n system, including how to use the `I18n` servic
 
 ## License
 
-MIT – see [LICNESE](LICENSE) for details.
+MIT – see [LICENSE](LICENSE) for details.
