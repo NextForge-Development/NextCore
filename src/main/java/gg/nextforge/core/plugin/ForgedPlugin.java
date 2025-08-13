@@ -39,19 +39,15 @@ public abstract class ForgedPlugin extends LicensedPlugin {
         // 2) Hook: onLoadDependencies
         onLoadDependencies(depManager);
 
-        // 3) Services registrieren (DI-Container)
         services = new ServiceRegistry();
+
         services.register(DependencyManager.class, depManager);
         services.register(ForgedPlugin.class, this);
-        // weitere Standard-Services hier registrieren (Logger, Config, etc.)
 
-        // 4) Automatisches Wiring (@Inject) im Plugin (und ggf. Subsystemen)
         Injector.wire(this, services);
 
-        // 5) Hook: beforeEnable (z. B. Config laden, Services starten)
         beforeEnable(services);
 
-        // 6) Plugin-spezifische Enable-Logik
         enable();
     }
 
