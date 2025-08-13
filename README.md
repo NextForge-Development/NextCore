@@ -50,6 +50,8 @@ src/main/java/gg/nextforge/core
 │   ├── storage         # Storage API + backends: JDBC, MySQL, H2, MongoDB, JSON
 │   └── util            # Reflection, UUID, Index utilities
 ├── plugin              # Plugin base and annotation
+│   ├── annotation      # @NextForgePlugin and related annotations
+│   ├── inject          # Dependency injection framework
 │   └── dependency      # Dependency loader and resolver
 ├── i18n                # Internationalization (i18n) support
 └── NextCore.java       # Entry point
