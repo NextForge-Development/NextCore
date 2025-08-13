@@ -9,6 +9,10 @@ import gg.nextforge.core.plugin.dependency.model.DependencyRepository;
 import gg.nextforge.core.plugin.inject.Initializable;
 import gg.nextforge.core.plugin.inject.Injector;
 import gg.nextforge.core.plugin.inject.ServiceRegistry;
+import gg.nextforge.core.i18n.I18n;
+import gg.nextforge.core.i18n.YamlMessageSource;
+import gg.nextforge.core.i18n.LocaleResolver;
+import gg.nextforge.core.i18n.DefaultLocaleResolver;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -26,70 +30,101 @@ public abstract class ForgedPlugin extends LicensedPlugin {
         Path libDir = this.getDataFolder().toPath().resolve("dependencies");
         Path cache = Path.of(System.getProperty("user.home"), ".nextforge-cache");
 
-        // 1) Dependency Manager + Repositories/Groups
-        depManager = new DependencyManager(cache, libDir, repositories(), Math.max(4, Runtime.getRuntime().availableProcessors()));
+        // 1) Resolve dependency groups and prepare isolated classloaders
+        depManager = new DependencyManager(cache, libDir, repositories(),
+                Math.max(4, Runtime.getRuntime().availableProcessors()));
         try {
             for (var e : groups().entrySet()) {
-                depManager.prepareGroup(e.getKey(), e.getValue(), /*verifyChecksums*/ true);
+                depManager.prepareGroup(e.getKey(), e.getValue(), true);
             }
         } catch (Exception e) {
-            throw new RuntimeException("Dependency prepare failed", e);
+            throw new RuntimeException("Dependency preparation failed", e);
         }
 
-        // 2) Hook: onLoadDependencies
+        // 2) Hook after dependencies are loaded
         onLoadDependencies(depManager);
 
+        // 3) Build DI container and wire @Inject fields
         services = new ServiceRegistry();
-
         services.register(DependencyManager.class, depManager);
         services.register(ForgedPlugin.class, this);
 
+        // 3a) Register i18n YAML services (per plugin)
+        var source = new YamlMessageSource(getDataFolder().toPath(), pluginDefaultLocale(), pluginSupportedLocales());
+        try {
+            source.ensureDefaults(this.getClass().getClassLoader()); // expects /messages/<lang>.yml in plugin jar
+            source.loadAll();
+        } catch (Exception ex) {
+            throw new RuntimeException("i18n initialization failed", ex);
+        }
+        LocaleResolver resolver = pluginLocaleResolver();
+        I18n i18n = new I18n(source, resolver);
+
+        // Qualified by plugin id (isolated in multi-plugin environments)
+        services.register(YamlMessageSource.class, pluginId().toString(), source);
+        services.register(LocaleResolver.class, pluginId().toString(), resolver);
+        services.register(I18n.class, pluginId().toString(), i18n);
+
+        // Optional unqualified registrations for convenience
+        services.register(YamlMessageSource.class, source);
+        services.register(LocaleResolver.class, resolver);
+        services.register(I18n.class, i18n);
+
         Injector.wire(this, services);
 
+        // 4) Pre-enable hook (initialize services etc.)
         beforeEnable(services);
 
+        // 5) Plugin-specific enable logic
         enable();
     }
 
     @Override
     public void disablePlugin() {
         try {
-            disable();           // Plugin-spezifisch
-            afterDisable();      // Hook
+            disable();
+            afterDisable();
         } finally {
             try { if (depManager != null) depManager.close(); } catch (Exception ignored) {}
         }
     }
 
-    /* --------- Lifecycle Hooks --------- */
-    /** Wird nach dem Laden der Dependencies, aber vor DI/Lifecycle aufgerufen. */
+    /** Called after dependency loading, before DI/lifecycle. */
     protected void onLoadDependencies(DependencyManager manager) {}
-    /** Wird nach DI, aber vor enable() aufgerufen. */
+
+    /** Called after DI wiring, before enable(). */
     protected void beforeEnable(ServiceRegistry services) {
         for (var entry : services.getAll().entrySet()) {
             Class<?> type = entry.getKey();
             Object instance = entry.getValue();
             getSLF4JLogger().info("Service loaded: {} ({})", type.getSimpleName(), instance);
-
-            // Falls du Initialisierung willst:
             if (instance instanceof Initializable init) {
                 init.initialize();
             }
         }
     }
-    /** Wird nach disable() aufgerufen (Cleanup). */
+
+    /** Called after disable(). */
     protected void afterDisable() {}
 
-    /* --------- Plugin API --------- */
     public abstract void enable();
     public abstract void disable();
 
-    /** Repositories (öffentlich/privat) */
+    /** Public/private repositories. */
     public abstract List<DependencyRepository> repositories();
-    /** Artefakte gruppiert nach Isolations-Loader */
+
+    /** Artifacts grouped by isolated classloader. */
     public abstract Map<String, List<DependencyArtifact>> groups();
 
-    /* Optionaler Getter, falls Plugins Services brauchen */
+    /** Per-plugin default locale. */
+    protected Locale pluginDefaultLocale() { return Locale.ENGLISH; }
+
+    /** Per-plugin supported locales (files: <data>/messages/<lang>.yml). */
+    protected Set<Locale> pluginSupportedLocales() { return Set.of(Locale.ENGLISH); }
+
+    /** Per-plugin audience locale resolver. */
+    protected LocaleResolver pluginLocaleResolver() { return new DefaultLocaleResolver(pluginDefaultLocale()); }
+
     protected ServiceRegistry services() { return services; }
     protected DependencyManager dependencyManager() { return depManager; }
 }
