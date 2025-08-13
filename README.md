@@ -51,6 +51,7 @@ src/main/java/gg/nextforge/core
 │   └── util            # Reflection, UUID, Index utilities
 ├── plugin              # Plugin base and annotation
 │   └── dependency      # Dependency loader and resolver
+├── i18n                # Internationalization (i18n) support
 └── NextCore.java       # Entry point
 ```
 
@@ -74,52 +75,6 @@ src/main/java/gg/nextforge/core
 
 ---
 
-## Example: Creating a Persisted Entity
-
-```java
-@DataClass(table = "users", collection = "users", file = "users")
-@Unique(columns = {"email"})
-public class User extends BaseEntity {
-
-    @PrimaryKey(mongoId = true)
-    private UUID uniqueId;
-
-    @Index
-    private String username;
-
-    @Unique
-    private String email;
-
-    private int age;
-
-    public User() {}
-}
-```
-
----
-
-## Example: Using MySQL Storage
-
-```java
-var storage = new MySQLStorage<>(
-    User.class,
-    "jdbc:mysql://localhost:3306/appdb",
-    "root",
-    "password"
-);
-storage.init();
--
-var user = new User();
-user.setUniqueId(UUID.randomUUID());
-user.setUsername("soldier");
-user.setEmail("soldier@example.com");
-user.setAge(25);
-
-storage.save(user);
-```
-
----
-
 ## Documentation
 
 For a detailed guide to the Data Package, including all annotations, backends, schema generation, and index handling, see:  
@@ -127,6 +82,9 @@ For a detailed guide to the Data Package, including all annotations, backends, s
 
 For the Dependency Injection Framework, including how to manage dependencies, and use them, see:
 📄 [Dependency Injection Documentation](.github/docs/Dependency-Injection.md)
+
+For the language support and i18n system, including how to use the `I18n` service, see:  
+📄 [I18n Documentation](.github/docs/I18n.md)
 
 ---
 
