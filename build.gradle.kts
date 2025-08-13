@@ -32,6 +32,19 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.38")
     annotationProcessor("org.projectlombok:lombok:1.18.38")
 
+    // Dependency Injection
+    implementation("org.apache.maven:maven-model:4.0.0-rc-4")
+    implementation("org.apache.maven.resolver:maven-resolver-connector-basic:2.0.10")
+    implementation("org.apache.maven.resolver:maven-resolver-transport-http:1.9.24")
+    implementation("org.apache.maven.resolver:maven-resolver-transport-file:2.0.10")
+    implementation("org.apache.maven.resolver:maven-resolver-spi:2.0.10")
+    implementation("org.apache.maven.shared:maven-shared-utils:3.4.2")
+    implementation("org.apache.maven:maven-resolver-provider:3.9.11")
+    implementation("org.apache.maven.resolver:maven-resolver-api:2.0.10")
+
+    // Hashing
+    implementation("commons-codec:commons-codec:1.19.0")
+
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
