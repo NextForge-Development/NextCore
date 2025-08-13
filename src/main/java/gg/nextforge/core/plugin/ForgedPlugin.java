@@ -4,6 +4,7 @@ package gg.nextforge.core.plugin;
 import com.destroystokyo.paper.event.server.ServerTickEndEvent;
 import com.destroystokyo.paper.event.server.ServerTickStartEvent;
 import dev.mzcy.LicensedPlugin;
+import gg.nextforge.core.commands.CommandManager;
 import gg.nextforge.core.events.EventBus;
 import gg.nextforge.core.plugin.annotation.NextForgePlugin;
 import gg.nextforge.core.plugin.dependency.DependencyManager;
@@ -35,6 +36,7 @@ public abstract class ForgedPlugin extends LicensedPlugin {
     private ServiceRegistry services;
     private NextForgeScheduler scheduler;
     private EventBus eventBus;
+    private CommandManager commandManager;
 
     @Override
     public void enablePlugin() {
@@ -103,6 +105,7 @@ public abstract class ForgedPlugin extends LicensedPlugin {
     public void disablePlugin() {
         try {
             disable();
+            services().get(CommandManager.class).ifPresent(CommandManager::unregisterAll);
             scheduler.close();
             afterDisable();
         } finally {
@@ -123,6 +126,9 @@ public abstract class ForgedPlugin extends LicensedPlugin {
                 init.initialize();
             }
         }
+
+        commandManager = new CommandManager(this, services);
+        services.register(CommandManager.class, commandManager);
     }
 
     /** Called after disable(). */

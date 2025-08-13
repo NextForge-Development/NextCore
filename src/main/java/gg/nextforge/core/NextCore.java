@@ -1,8 +1,15 @@
 package gg.nextforge.core;
 
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class NextCore extends JavaPlugin {
+
+    private static NextCore instance;
+
+    public static NextCore instance() {
+        return instance;
+    }
 
     @Override
     public void onEnable() {
