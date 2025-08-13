@@ -79,19 +79,19 @@ src/main/java/gg/nextforge/core
 
 ## Documentation
 
-For a detailed guide to the Data Package, including all annotations, backends, schema generation, and index handling, see:  
+For a detailed guide to the Data Package, including all annotations, backends, schema generation, and index handling, see:<br>
 📄 [Data Package Documentation](.github/docs/Data-Package.md)
-
-For the Dependency Injection Framework, including how to manage dependencies, and use them, see:
+<br>
+For the Dependency Injection Framework, including how to manage dependencies, and use them, see:<br>
 📄 [Dependency Injection Documentation](.github/docs/Dependency-Injection.md)
-
-For the language support and i18n system, including how to use the `I18n` service, see:  
+<br>
+For the language support and i18n system, including how to use the `I18n` service, see:<br>
 📄 [I18n Documentation](.github/docs/I18n.md)
-
-For our very own sync/async task scheduling system, see:
+<br>
+For our very own sync/async task scheduling system, see:<br>
 📄 [Task Scheduling Documentation](.github/docs/Scheduler.md)
-
-For the event bus system, including how to register and listen to events, see:
+<br>
+For the event bus system, including how to register and listen to events, see:<br>
 📄 [Event Bus Documentation](.github/docs/Event-Bus.md)
 
 ---
