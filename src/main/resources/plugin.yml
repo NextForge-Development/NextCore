@@ -1,0 +1,8 @@
+name: NextCore
+version: 1.0.0
+main: gg.nextforge.core.NextCore
+api-version: 1.19
+author: "NextForge Team"
+description: "A core plugin for NextForge, providing essential features and utilities."
+depend:
+  - PlaceholderAPI
