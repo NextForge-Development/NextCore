@@ -17,7 +17,7 @@ dependencies {
     implementation("gg.nextforge:nextlicenses-client:1.1-SNAPSHOT")
 
     // JDBC Backends
-    implementation("mysql:mysql-connector-j:8.4.0")
+    implementation("com.mysql:mysql-connector-j:9.4.0")
     implementation("com.h2database:h2:2.2.224")
 
     // MongoDB
@@ -38,6 +38,7 @@ dependencies {
     implementation("org.apache.maven.resolver:maven-resolver-transport-http:1.9.24")
     implementation("org.apache.maven.resolver:maven-resolver-transport-file:2.0.10")
     implementation("org.apache.maven.resolver:maven-resolver-spi:2.0.10")
+    implementation("org.eclipse.aether:aether-spi:1.1.0")
     implementation("org.apache.maven.shared:maven-shared-utils:3.4.2")
     implementation("org.apache.maven:maven-resolver-provider:3.9.11")
     implementation("org.apache.maven.resolver:maven-resolver-api:2.0.10")
@@ -48,6 +49,11 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+    options.release.set(17)
 }
 
 tasks.test {

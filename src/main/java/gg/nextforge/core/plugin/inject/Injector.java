@@ -11,6 +11,7 @@ public final class Injector {
         wire(target, registry, new HashSet<>());
     }
 
+    @SuppressWarnings("unchecked")
     private static void wire(Object target, ServiceRegistry registry, Set<Class<?>> stack) {
         if (target == null) return;
         Class<?> cls = target.getClass();
@@ -23,8 +24,8 @@ public final class Injector {
 
                 Class<?> depType = f.getType();
                 Object dep = ann.value().isBlank()
-                        ? registry.get(depType).orElseGet(() -> registry.getOrCreate(depType))
-                        : registry.get(depType, ann.value()).orElseThrow(() ->
+                        ? ((java.util.Optional<Object>) registry.get(depType)).orElseGet(() -> registry.getOrCreate(depType))
+                        : ((java.util.Optional<Object>) registry.get(depType, ann.value())).orElseThrow(() ->
                         new IllegalStateException("No service registered für " + depType.getName() + " mit Name '" + ann.value() + "'"));
                 f.setAccessible(true);
                 try {
