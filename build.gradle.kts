@@ -2,9 +2,10 @@ plugins {
     id("java-library")
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.17"
     id("com.gradleup.shadow") version "8.3.8"
+    id("maven-publish")
 }
 
-group = "dev.mzcy"
+group = "gg.nextforge"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -58,4 +59,18 @@ tasks.withType<JavaCompile> {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            groupId = "gg.nextforge"
+            artifactId = "nextcore"
+            version = project.version.toString()
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
 }

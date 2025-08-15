@@ -238,6 +238,6 @@ public class CommandManager {
             return tab.call(sender, alias, args);
         }
 
-        @Override public Plugin getPlugin() { return NextCore.instance(); }
+        @Override public Plugin getPlugin() { return NextCore.getInstance(); }
     }
 }
