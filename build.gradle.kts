@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "gg.nextforge"
-version = "1.0-SNAPSHOT"
+version = "1.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
     paperweight.paperDevBundle("1.19.1-R0.1-SNAPSHOT")
-    implementation("gg.nextforge:nextlicenses-client:1.1-SNAPSHOT")
+    implementation("gg.nextforge:nextlicenses-client:1.2-SNAPSHOT")
 
     // JDBC Backends
     implementation("com.mysql:mysql-connector-j:9.4.0")
