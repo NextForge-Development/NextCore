@@ -1,6 +1,7 @@
 package gg.nextforge.core;
 
 import gg.nextforge.core.plugin.ForgedPlugin;
+import gg.nextforge.core.plugin.annotation.NextForgePlugin;
 import gg.nextforge.core.plugin.dependency.model.DependencyArtifact;
 import gg.nextforge.core.plugin.dependency.model.DependencyRepository;
 import org.bukkit.plugin.Plugin;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@NextForgePlugin(name = "NextCore")
 public class NextCore extends ForgedPlugin {
 
     private static NextCore instance;

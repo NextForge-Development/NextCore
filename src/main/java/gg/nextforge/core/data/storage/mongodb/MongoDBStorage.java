@@ -119,6 +119,7 @@ public class MongoDBStorage<T, ID> implements Storage<T, ID> {
     @Override
     public T update(T entity) throws Exception {
         Object id = getId(entity).orElseThrow();
+        // UUIDs als String speichern und suchen
         var filter = com.mongodb.client.model.Filters.eq(pkName, id instanceof java.util.UUID u ? u.toString() : id);
         if (useTransactions) {
             try (var session = client.startSession()) {
@@ -132,7 +133,9 @@ public class MongoDBStorage<T, ID> implements Storage<T, ID> {
 
     @Override
     public Optional<T> findById(ID id) {
-        Document d = coll.find(Filters.eq(pkName, id)).first();
+        // UUIDs als String suchen
+        Object searchId = (id instanceof UUID u) ? u.toString() : id;
+        Document d = coll.find(Filters.eq(pkName, searchId)).first();
         return d == null ? Optional.empty() : Optional.of(fromDocument(d));
     }
 
@@ -147,7 +150,9 @@ public class MongoDBStorage<T, ID> implements Storage<T, ID> {
 
     @Override
     public boolean deleteById(ID id) {
-        return coll.deleteOne(Filters.eq(pkName, id)).getDeletedCount() > 0;
+        // UUIDs als String suchen
+        Object searchId = (id instanceof UUID u) ? u.toString() : id;
+        return coll.deleteOne(Filters.eq(pkName, searchId)).getDeletedCount() > 0;
     }
 
     @Override
@@ -157,7 +162,9 @@ public class MongoDBStorage<T, ID> implements Storage<T, ID> {
 
     @Override
     public boolean existsById(ID id) {
-        return coll.find(Filters.eq(pkName, id)).limit(1).first() != null;
+        // UUIDs als String suchen
+        Object searchId = (id instanceof UUID u) ? u.toString() : id;
+        return coll.find(Filters.eq(pkName, searchId)).limit(1).first() != null;
     }
 
     /* ---------- Mapping ---------- */

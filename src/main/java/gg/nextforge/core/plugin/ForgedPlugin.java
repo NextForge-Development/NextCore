@@ -77,9 +77,10 @@ public abstract class ForgedPlugin extends LicensedPlugin {
         I18n i18n = new I18n(source, resolver);
 
         // Qualified by plugin id (isolated in multi-plugin environments)
-        services.register(YamlMessageSource.class, pluginId().toString(), source);
-        services.register(LocaleResolver.class, pluginId().toString(), resolver);
-        services.register(I18n.class, pluginId().toString(), i18n);
+        String pluginKey = pluginId() != null ? pluginId().toString() : this.getName();
+        services.register(YamlMessageSource.class, pluginKey, source);
+        services.register(LocaleResolver.class, pluginKey, resolver);
+        services.register(I18n.class, pluginKey, i18n);
 
         // Optional unqualified registrations for convenience
         services.register(YamlMessageSource.class, source);
